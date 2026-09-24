@@ -1,7 +1,7 @@
 import { MCP_TOOLS, executeMCPTool } from './mcpTools';
 import { ToolCallExecution } from '../types';
 
-export const DEFAULT_GEMINI_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) || '';
+export const DEFAULT_GEMINI_KEY = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEY) || '';
 const GEMINI_MODEL = 'gemini-2.0-flash';
 
 // Convert MCP Tool Definitions into Gemini Tool Declarations format
