@@ -33,11 +33,34 @@ export interface MCPLogEntry {
   durationMs?: number;
 }
 
+export interface CabRideOption {
+  service: string;
+  name: string;
+  vehicleModel: string;
+  fare: string;
+  numericFare: number;
+  etaMinutes: number;
+  capacity: string;
+  badge?: string;
+  description: string;
+  uberDeepLink: string;
+}
+
+export interface RouteSummary {
+  origin: string;
+  destination: string;
+  distanceKm: number;
+  durationMinutes: number;
+  trafficLevel: 'Low' | 'Moderate' | 'Heavy';
+}
+
 export interface CabBookingResult {
   bookingId: string;
   service: string;
   pickup: string;
   destination: string;
+  route?: RouteSummary;
+  options?: CabRideOption[];
   driver: {
     name: string;
     rating: number;
@@ -45,11 +68,17 @@ export interface CabBookingResult {
     licensePlate: string;
     avatar: string;
     phone: string;
+    trips?: number;
+    languages?: string;
   };
   etaMinutes: number;
   fareEstimate: string;
   otp: string;
   status: 'assigned' | 'arriving' | 'in_transit' | 'completed';
+  uberDeepLink?: string;
+  surgeMultiplier?: string;
+  tollIncluded?: boolean;
+  paymentMethod?: string;
 }
 
 export interface TrainStatusResult {
@@ -64,6 +93,23 @@ export interface TrainStatusResult {
   platform: string;
   pnr?: string;
   coachPosition: string;
+  currentSpeed?: string;
+  nextStation?: string;
+  cateringStatus?: string;
+}
+
+export interface FlightStatusResult {
+  flightNumber: string;
+  airline: string;
+  origin: string;
+  destination: string;
+  scheduledDeparture: string;
+  estimatedDeparture: string;
+  terminal: string;
+  gate: string;
+  baggageBelt: string;
+  status: 'On Time' | 'Boarding' | 'Departed' | 'Delayed';
+  securityWaitMins: number;
 }
 
 export interface CalendarEventResult {
@@ -94,11 +140,33 @@ export interface PriceLookupResult {
   }>;
 }
 
+export interface ForgeBasicsResult {
+  title: string;
+  creator: string;
+  tagline: string;
+  pipeline: {
+    voiceIngestion: string;
+    intelligence: string;
+    executionProtocol: string;
+    speechOutput: string;
+  };
+  pillars: Array<{
+    name: string;
+    description: string;
+    sampleCommand: string;
+    badge: string;
+  }>;
+  models: {
+    p1: string;
+    p2: string;
+  };
+}
+
 export interface ToolCallExecution {
   id: string;
   toolName: string;
   args: any;
   status: 'pending' | 'success' | 'failed';
-  result?: CabBookingResult | TrainStatusResult | CalendarEventResult | PriceLookupResult | any;
+  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | any;
   executedAt: string;
 }

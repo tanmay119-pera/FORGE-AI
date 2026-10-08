@@ -48,30 +48,49 @@ export const VoiceStudio: React.FC<VoiceStudioProps> = ({
           <span>Multimodal Voice AI Engine • Built by Tanmay (Adesh Srivastava)</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+        <h1 className={`text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight ${
+          isPureBlack ? 'text-white' : 'text-neutral-900'
+        }`}>
           Next-Gen Conversational Voice AI <br />
-          <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-violet-500 via-fuchsia-500 to-indigo-500 bg-clip-text text-transparent">
             With Real MCP Tool Calling
           </span>
         </h1>
 
-        <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed max-w-2xl mx-auto">
+        <p className={`text-xs sm:text-sm leading-relaxed max-w-2xl mx-auto ${
+          isPureBlack ? 'text-neutral-400' : 'text-neutral-600'
+        }`}>
           Go beyond conventional chat. An autonomous voice co-pilot that listens over Agora SD-RTN real-time channels, reasons via Gemini 3.6 Flash, and triggers verified real-world actions using the Model Context Protocol.
         </p>
 
         {/* Feature Highlights Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-[11px] font-semibold text-neutral-400">
-          <span className="px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800">
+        <div className={`flex flex-wrap items-center justify-center gap-2 pt-2 text-[11px] font-semibold ${
+          isPureBlack ? 'text-neutral-400' : 'text-neutral-700'
+        }`}>
+          <span className={`px-3 py-1 rounded-full border ${
+            isPureBlack ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200 shadow-sm'
+          }`}>
             ⚡ &lt;25ms Audio Latency
           </span>
-          <span className="px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800">
+          <span className={`px-3 py-1 rounded-full border ${
+            isPureBlack ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200 shadow-sm'
+          }`}>
             🛠️ Model Context Protocol (MCP)
           </span>
-          <span className="px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800">
+          <span className={`px-3 py-1 rounded-full border ${
+            isPureBlack ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200 shadow-sm'
+          }`}>
             🤖 Gemini 3.6 Flash Native Tools
           </span>
-          <span className="px-3 py-1 rounded-full bg-neutral-900 border border-neutral-800">
+          <span className={`px-3 py-1 rounded-full border ${
+            isPureBlack ? 'bg-neutral-900 border-neutral-800' : 'bg-white border-neutral-200 shadow-sm'
+          }`}>
             🎙️ Hardware Echo Cancellation
+          </span>
+          <span className={`px-3 py-1 rounded-full border ${
+            isPureBlack ? 'bg-violet-950/40 border-violet-800/40 text-violet-300' : 'bg-violet-50 border-violet-200 text-violet-800'
+          }`}>
+            ✨ Voice: ElevenLabs (MwUMLXurEzSN7bIfIdXF)
           </span>
         </div>
       </div>

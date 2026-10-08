@@ -214,7 +214,7 @@ export const ThreeOrb: React.FC<VoiceOrbProps> = ({ voiceState, volume, theme })
       // ==========================================
       rings.forEach((ring, rIdx) => {
         const ringTime = time * ring.speed;
-        const numSegments = 64;
+        const numSegments = 24;
         const ringPoints: Point3D[] = [];
 
         for (let i = 0; i <= numSegments; i++) {
@@ -229,25 +229,22 @@ export const ThreeOrb: React.FC<VoiceOrbProps> = ({ voiceState, volume, theme })
         }
 
         // Draw ring segments located behind the crystal
-        ctx.save();
+        ctx.beginPath();
         for (let i = 0; i < numSegments; i++) {
           const p1 = ringPoints[i];
           const p2 = ringPoints[i + 1];
           if ((p1.z + p2.z) / 2 > 0) { // Back half
             const proj1 = project(p1);
             const proj2 = project(p2);
-
-            ctx.beginPath();
             ctx.moveTo(proj1.x, proj1.y);
             ctx.lineTo(proj2.x, proj2.y);
-            ctx.lineWidth = ring.width * proj1.scale * 0.85;
-            ctx.strokeStyle = isPureBlack
-              ? `rgba(168, 85, 247, ${0.25 * proj1.scale})`
-              : `rgba(124, 58, 237, ${0.35 * proj1.scale})`;
-            ctx.stroke();
           }
         }
-        ctx.restore();
+        ctx.lineWidth = ring.width * 0.85;
+        ctx.strokeStyle = isPureBlack
+          ? 'rgba(168, 85, 247, 0.25)'
+          : 'rgba(124, 58, 237, 0.35)';
+        ctx.stroke();
 
         // Orbiting Photon Comet on this ring (Back half)
         const cometAngle = (ringTime * 2.2 + rIdx * 1.5) % (Math.PI * 2);
@@ -339,7 +336,7 @@ export const ThreeOrb: React.FC<VoiceOrbProps> = ({ voiceState, volume, theme })
       // ==========================================
       rings.forEach((ring, rIdx) => {
         const ringTime = time * ring.speed;
-        const numSegments = 64;
+        const numSegments = 24;
         const ringPoints: Point3D[] = [];
 
         for (let i = 0; i <= numSegments; i++) {
@@ -354,27 +351,22 @@ export const ThreeOrb: React.FC<VoiceOrbProps> = ({ voiceState, volume, theme })
         }
 
         // Draw ring segments in FRONT of crystal
-        ctx.save();
+        ctx.beginPath();
         for (let i = 0; i < numSegments; i++) {
           const p1 = ringPoints[i];
           const p2 = ringPoints[i + 1];
           if ((p1.z + p2.z) / 2 <= 0) { // Front half
             const proj1 = project(p1);
             const proj2 = project(p2);
-
-            ctx.beginPath();
             ctx.moveTo(proj1.x, proj1.y);
             ctx.lineTo(proj2.x, proj2.y);
-            ctx.lineWidth = ring.width * proj1.scale * 1.25;
-            ctx.strokeStyle = isPureBlack
-              ? `rgba(192, 132, 252, ${0.85 * proj1.scale})`
-              : `rgba(124, 58, 237, ${0.9 * proj1.scale})`;
-            ctx.shadowColor = ring.colorViolet;
-            ctx.shadowBlur = 10;
-            ctx.stroke();
           }
         }
-        ctx.restore();
+        ctx.lineWidth = ring.width * 1.25;
+        ctx.strokeStyle = isPureBlack
+          ? 'rgba(192, 132, 252, 0.85)'
+          : 'rgba(124, 58, 237, 0.9)';
+        ctx.stroke();
 
         // Orbiting Photon Comet on this ring (Front half)
         const cometAngle = (ringTime * 2.2 + rIdx * 1.5) % (Math.PI * 2);

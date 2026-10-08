@@ -1,7 +1,7 @@
 import { MCP_TOOLS, executeMCPTool } from './mcpTools';
 import { ToolCallExecution } from '../types';
 
-export const DEFAULT_GEMINI_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) || '';
+export const DEFAULT_GEMINI_KEY = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEY) || '';
 const GEMINI_MODEL = 'gemini-2.0-flash';
 
 // Convert MCP Tool Definitions into Gemini Tool Declarations format
@@ -13,6 +13,7 @@ const geminiFunctionDeclarations = MCP_TOOLS.map(tool => ({
 
 export class GeminiService {
   private apiKey: string;
+  private conversationHistory: Array<{ role: 'user' | 'model'; parts: any[] }> = [];
 
   constructor() {
     this.apiKey = (typeof window !== 'undefined' && localStorage.getItem('forge_gemini_key')) || DEFAULT_GEMINI_KEY;
@@ -29,6 +30,10 @@ export class GeminiService {
     return this.apiKey;
   }
 
+  public clearHistory() {
+    this.conversationHistory = [];
+  }
+
   public async processQuery(
     prompt: string,
     onToolExecute: (execution: ToolCallExecution) => void,
@@ -42,26 +47,53 @@ export class GeminiService {
 
     const systemPrompt = `You are Forge P1, an executive autonomous voice and action co-pilot built by Tanmay (Adesh Srivastava).
 When asked who you are, who created you, who made you, or what you are, ALWAYS state that you are Forge P1, built by Tanmay (Adesh Srivastava). Never claim to be made by Gemini, Google, or Agora.
-You have access to real-time tools for:
-1. cab_dispatch: Booking rides and cabs (Uber/Ola).
-2. transit_tracker: Checking live trains (e.g. Vande Bharat, Shatabdi, delay, platform).
-3. calendar_sync: Syncing reminders and travel schedules on Google Calendar.
-4. local_pricing: Looking up instant store prices (Blinkit, Zepto, Amazon).
 
-When a user mentions travel, catching a train, booking a cab, scheduling an event, or comparing prices, ALWAYS call the corresponding function.
-If the user gives a multi-action request (e.g. "Book a cab to Central Station for the 6 PM train"), execute the appropriate tools.
-Keep your final spoken response concise (1-2 sentences max), crisp, professional, and executive.`;
+CORE KNOWLEDGE & ARCHITECTURE:
+- Forge connects real-time conversational voice intelligence with real-world tool execution using the Model Context Protocol (MCP).
+- Dual Intelligence Engines:
+  * Forge P1: Rapid everyday velocity, sub-25ms voice conversations & single-turn execution.
+  * Forge P2: Deep multi-step reasoning, chained cross-service plans & high-precision execution.
+- Real-World Tool Suite:
+  1. forge_basics: Explains Forge architecture, real-world capabilities, and live commands. Call this whenever asked "tell me the basics", "how do you work?", "what can you do?", or "explain Forge".
+  2. cab_dispatch: Searches live 5-tier Uber options (Uber Auto, UberGo, Premier, UberXL, Uber Black) with Google Maps routing, distance, duration, fares, verified drivers, and OTP PIN.
+  3. transit_tracker: Checks real-time train status (Vande Bharat, Shatabdi, Rajdhani, Gatimaan, Tejas) with current speed, next station, and platforms.
+  4. flight_tracker: Tracks live airport flights (IndiGo, Air India, Emirates), terminal gates, security wait times, and baggage belts.
+  5. calendar_sync: Syncs reminders and meetings on Google Calendar with Meet links and buffers.
+  6. local_pricing: Instant local store pricing comparison across Blinkit (8m), Zepto (10m), Swiggy Instamart, and Amazon.
+
+CRITICAL BASICS & OVERVIEW RULES:
+- When asked "tell me the basics", "explain how this works", "what are your features?", or "give me an overview":
+  IMMEDIATELY call the forge_basics tool with topic "overview"!
+  In your spoken response, highlight Forge's sub-25ms voice, live MCP tool execution, and suggest 2 quick sample commands to try.
+
+CRITICAL CAB & RIDESHARE RULES:
+- When the user asks to book a cab, hail a ride, get an Uber or taxi (e.g., "I want to book a cab", "Book a cab", "Call me a taxi", "Get me an Uber"):
+  1. If the user HAS NOT specified BOTH their pickup location AND destination:
+     DO NOT call cab_dispatch yet!
+     Instead, directly ask: "Where are you right now, and where would you like to go?"
+  2. If the user gave only destination (e.g., "Take me to Airport"), ask for pickup: "Understood, heading to the airport. Where should the driver pick you up?"
+  3. If the user gave only pickup (e.g., "I am at Cyber Hub"), ask for destination: "Got it. Where are you heading?"
+  4. Once you have BOTH pickup and destination locations (either in a single turn or after clarification):
+     IMMEDIATELY call the cab_dispatch tool with pickup and destination.
+  5. After cab_dispatch returns, summarize the Uber options (UberGo, Premier, UberXL, and Auto) with prices and ETAs, and confirm the best match.
+
+Keep your spoken responses executive, concise (1-2 sentences max), crisp, professional, and confident.`;
+
+    // Append to conversation history (keep max 10 turns)
+    this.conversationHistory.push({
+      role: 'user',
+      parts: [{ text: prompt }]
+    });
+
+    if (this.conversationHistory.length > 10) {
+      this.conversationHistory = this.conversationHistory.slice(-10);
+    }
 
     const requestBody = {
       systemInstruction: {
         parts: [{ text: systemPrompt }]
       },
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: prompt }]
-        }
-      ],
+      contents: this.conversationHistory,
       tools: [
         {
           functionDeclarations: geminiFunctionDeclarations
@@ -119,32 +151,29 @@ Keep your final spoken response concise (1-2 sentences max), crisp, professional
       };
       onToolExecute(execution);
 
+      // Record function call and function response into conversation history
+      this.conversationHistory.push({
+        role: 'model',
+        parts: [functionCallPart]
+      });
+      this.conversationHistory.push({
+        role: 'user',
+        parts: [
+          {
+            functionResponse: {
+              name: toolName,
+              response: { result: toolResult }
+            }
+          }
+        ]
+      });
+
       // Now send the tool result back to Gemini for final natural speech synthesis
       const followUpBody = {
         systemInstruction: {
           parts: [{ text: systemPrompt }]
         },
-        contents: [
-          {
-            role: 'user',
-            parts: [{ text: prompt }]
-          },
-          {
-            role: 'model',
-            parts: [functionCallPart]
-          },
-          {
-            role: 'user',
-            parts: [
-              {
-                functionResponse: {
-                  name: toolName,
-                  response: { result: toolResult }
-                }
-              }
-            ]
-          }
-        ]
+        contents: this.conversationHistory
       };
 
       const finalRes = await fetch(endpoint, {
@@ -157,25 +186,41 @@ Keep your final spoken response concise (1-2 sentences max), crisp, professional
         const finalData = await finalRes.json();
         const finalText = finalData.candidates?.[0]?.content?.parts?.[0]?.text;
         if (finalText) {
+          this.conversationHistory.push({
+            role: 'model',
+            parts: [{ text: finalText }]
+          });
           onMCPLog('server_to_client', 'llm/gemini_response', { text: finalText });
           return finalText;
         }
       }
 
       // Fallback concise speech
+      let fallbackSpeech = '';
       if (toolName === 'cab_dispatch') {
-        return `Your ${toolResult.service} is confirmed. Driver Rajesh arrives in ${toolResult.etaMinutes} minutes. PIN is ${toolResult.otp}.`;
+        fallbackSpeech = `Uber options found: UberGo is ${toolResult.fareEstimate} arriving in ${toolResult.etaMinutes} mins. Driver Rajesh is en route with PIN ${toolResult.otp}.`;
       } else if (toolName === 'transit_tracker') {
-        return `${toolResult.trainName} is running on time at ${toolResult.platform}. Departure is ${toolResult.scheduledDeparture}.`;
+        fallbackSpeech = `${toolResult.trainName} is running on time at ${toolResult.platform}. Departure is ${toolResult.scheduledDeparture}.`;
+      } else if (toolName === 'flight_tracker') {
+        fallbackSpeech = `${toolResult.airline} flight ${toolResult.flightNumber} to ${toolResult.destination} is ${toolResult.status} at ${toolResult.terminal}, Gate ${toolResult.gate}. Security wait is ${toolResult.securityWaitMins} mins.`;
       } else if (toolName === 'calendar_sync') {
-        return `Synced to your calendar: ${toolResult.title} at ${toolResult.startTime}.`;
+        fallbackSpeech = `Synced to your calendar: ${toolResult.title} at ${toolResult.startTime}.`;
       } else {
-        return `Found ${toolResult.product} on ${toolResult.cheapestVendor} for ${toolResult.lowestPrice}.`;
+        fallbackSpeech = `Found ${toolResult.product} on ${toolResult.cheapestVendor} for ${toolResult.lowestPrice}.`;
       }
+      this.conversationHistory.push({
+        role: 'model',
+        parts: [{ text: fallbackSpeech }]
+      });
+      return fallbackSpeech;
     }
 
-    // Direct text reply from Gemini
+    // Direct text reply from Gemini (e.g. asking "Where are you right now and where would you like to go?")
     const textReply = parts.find((p: any) => p.text)?.text || 'I have processed your request.';
+    this.conversationHistory.push({
+      role: 'model',
+      parts: [{ text: textReply }]
+    });
     onMCPLog('server_to_client', 'llm/gemini_response', { text: textReply }, elapsed);
     return textReply;
   }

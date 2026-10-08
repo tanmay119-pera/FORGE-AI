@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { AgoraConfig, ThemeMode } from '../types';
-import { X, Key, Radio, Settings, ShieldCheck, Check, Sparkles } from 'lucide-react';
+import { X, Key, Radio, Settings, ShieldCheck, Check, Sparkles, MapPin, Car, Volume2 } from 'lucide-react';
 import { geminiService, DEFAULT_GEMINI_KEY } from '../services/geminiService';
+import { elevenLabsService, DEFAULT_ELEVENLABS_VOICE_ID } from '../services/elevenLabsService';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -20,6 +21,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<AgoraConfig>(config);
   const [geminiKey, setGeminiKey] = useState<string>(() => geminiService.getApiKey() || DEFAULT_GEMINI_KEY);
+  const [gmapsKey, setGmapsKey] = useState<string>(() => (typeof window !== 'undefined' && localStorage.getItem('forge_gmaps_key')) || '');
+  const [uberToken, setUberToken] = useState<string>(() => (typeof window !== 'undefined' && localStorage.getItem('forge_uber_token')) || '');
+  const [elevenLabsKey, setElevenLabsKey] = useState<string>(() => elevenLabsService.getApiKey());
+  const [elevenLabsVoiceId, setElevenLabsVoiceId] = useState<string>(() => elevenLabsService.getVoiceId() || DEFAULT_ELEVENLABS_VOICE_ID);
   const [saved, setSaved] = useState(false);
   const isPureBlack = theme === 'dark';
 
@@ -29,6 +34,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     e.preventDefault();
     onSaveConfig(formData);
     geminiService.setApiKey(geminiKey);
+    elevenLabsService.setApiKey(elevenLabsKey);
+    elevenLabsService.setVoiceId(elevenLabsVoiceId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('forge_gmaps_key', gmapsKey.trim());
+      localStorage.setItem('forge_uber_token', uberToken.trim());
+    }
     setSaved(true);
     setTimeout(() => {
       setSaved(false);
@@ -86,6 +97,104 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
             <p className="text-[10px] text-neutral-500 mt-1">
               Powered by Google Gemini 3.6 Flash with Model Context Protocol function calling.
+            </p>
+          </div>
+
+          {/* ElevenLabs Realistic Voice Settings */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
+                <Volume2 className="w-3.5 h-3.5 text-violet-400" />
+                <span>ElevenLabs Voice Settings</span>
+              </label>
+              <span className="text-[10px] text-violet-400 font-semibold">● MwUMLXurEzSN7bIfIdXF</span>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={elevenLabsVoiceId}
+                  onChange={(e) => setElevenLabsVoiceId(e.target.value)}
+                  placeholder="ElevenLabs Voice ID (Default: MwUMLXurEzSN7bIfIdXF)"
+                  className={`w-full px-3 py-2 text-xs rounded-2xl focus:outline-none focus:ring-1 focus:ring-violet-500 font-mono ${
+                    isPureBlack
+                      ? 'bg-[#141414] text-white placeholder:text-neutral-600'
+                      : 'bg-[#f4f4f6] text-black placeholder:text-neutral-400'
+                  }`}
+                />
+              </div>
+
+              <div className="relative">
+                <input
+                  type="password"
+                  value={elevenLabsKey}
+                  onChange={(e) => setElevenLabsKey(e.target.value)}
+                  placeholder="Enter ElevenLabs API Key (xi-api-key)..."
+                  className={`w-full px-3 py-2 text-xs rounded-2xl focus:outline-none focus:ring-1 focus:ring-violet-500 font-mono ${
+                    isPureBlack
+                      ? 'bg-[#141414] text-white placeholder:text-neutral-600'
+                      : 'bg-[#f4f4f6] text-black placeholder:text-neutral-400'
+                  }`}
+                />
+              </div>
+            </div>
+            <p className="text-[10px] text-neutral-500 mt-1">
+              Ultra-realistic human voice generated via ElevenLabs Turbo v2.5. Falls back to browser speech if key is omitted.
+            </p>
+          </div>
+
+          {/* Google Maps Platform API Key */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Google Maps API Key (Optional)</span>
+              </label>
+              <span className="text-[10px] text-emerald-400 font-semibold">● Free Engine Active</span>
+            </div>
+            <div className="relative">
+              <input
+                type="password"
+                value={gmapsKey}
+                onChange={(e) => setGmapsKey(e.target.value)}
+                placeholder="AIzaSy... (Leave empty for built-in smart routing)"
+                className={`w-full px-3 py-2.5 text-xs rounded-2xl focus:outline-none focus:ring-1 focus:ring-emerald-500 font-mono ${
+                  isPureBlack
+                    ? 'bg-[#141414] text-white placeholder:text-neutral-600'
+                    : 'bg-[#f4f4f6] text-black placeholder:text-neutral-400'
+                }`}
+              />
+            </div>
+            <p className="text-[10px] text-neutral-500 mt-1">
+              Used for live distance calculation, geocoding, and driving duration.
+            </p>
+          </div>
+
+          {/* Uber API Credentials */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
+                <Car className="w-3.5 h-3.5 text-violet-400" />
+                <span>Uber API / Server Token (Optional)</span>
+              </label>
+              <span className="text-[10px] text-violet-400 font-semibold">● Deep-Link Ready</span>
+            </div>
+            <div className="relative">
+              <input
+                type="password"
+                value={uberToken}
+                onChange={(e) => setUberToken(e.target.value)}
+                placeholder="Enter Uber Server Token / Client ID (Optional)..."
+                className={`w-full px-3 py-2.5 text-xs rounded-2xl focus:outline-none focus:ring-1 focus:ring-violet-500 font-mono ${
+                  isPureBlack
+                    ? 'bg-[#141414] text-white placeholder:text-neutral-600'
+                    : 'bg-[#f4f4f6] text-black placeholder:text-neutral-400'
+                }`}
+              />
+            </div>
+            <p className="text-[10px] text-neutral-500 mt-1">
+              Powers instant multi-tier ride estimation (UberGo, Premier, XL, Auto) & 1-click booking.
             </p>
           </div>
 

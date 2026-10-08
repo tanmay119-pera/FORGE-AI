@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeMode } from '../types';
-import { Sparkles, Car, Train, Calendar, ShoppingBag } from 'lucide-react';
+import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane } from 'lucide-react';
 
 interface SuggestedPromptsProps {
   onSelectPrompt: (prompt: string) => void;
@@ -12,19 +12,34 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onSelectProm
 
   const prompts = [
     {
+      title: 'The Basics',
+      text: 'Tell me the basics of Forge and how MCP tools work',
+      icon: Sparkles
+    },
+    {
       title: 'Showstopper',
       text: 'Book a cab to Central Station for the 6 PM train',
       icon: Sparkles
     },
     {
-      title: 'Cab',
-      text: 'Book an Uber to New Delhi Central Station',
+      title: 'Cab (Multi-Turn)',
+      text: 'I want to book a cab',
+      icon: Car
+    },
+    {
+      title: 'Cab (Direct)',
+      text: 'Book a cab from Connaught Place to Terminal 3 Airport',
       icon: Car
     },
     {
       title: 'Train',
-      text: 'Check Shatabdi Express status and platform',
+      text: 'Check Vande Bharat Express live train status and platform',
       icon: Train
+    },
+    {
+      title: 'Flight',
+      text: 'Track IndiGo flight 6E-204 status and gate',
+      icon: Plane
     },
     {
       title: 'Calendar',
@@ -33,7 +48,7 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onSelectProm
     },
     {
       title: 'Price',
-      text: 'Find price of iPhone 15 Charger on Blinkit',
+      text: 'Find price of Apple 30W Fast Charger across Blinkit',
       icon: ShoppingBag
     }
   ];
