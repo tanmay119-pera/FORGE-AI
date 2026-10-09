@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { VoiceState, ThemeMode, ToolCallExecution } from '../types';
 import { ThreeOrb } from './ThreeOrb';
-import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag } from 'lucide-react';
+import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation } from 'lucide-react';
 import { UserProfile } from './AuthModal';
 import { ForgeIcon } from './ForgeIcon';
 
@@ -297,6 +297,8 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
   // Quick Action Pills directly matching Screenshot style
   const quickPills = [
     { label: '💡 The Basics', action: 'prompt', prompt: 'Tell me the basics of Forge and how it works' },
+    { label: '👤 My Memory', action: 'prompt', prompt: 'Show my saved user profile & memory' },
+    { label: '🚗 Ride Home', action: 'prompt', prompt: 'Take me home' },
     { label: 'Talk with Forge', action: 'voice', prompt: '' },
     { label: 'Cab Dispatch', action: 'prompt', prompt: 'Book an Uber Premier to Central Station for the 6 PM train' },
     { label: 'Live Trains', action: 'prompt', prompt: 'Check Vande Bharat Express live train status and platform' },
@@ -953,7 +955,111 @@ const InlineActionCard: React.FC<{
   const isPureBlack = theme === 'dark';
   const { toolName, result } = execution;
 
-  // 0. Forge Basics & System Architecture Card
+  // 0. Personalized User Memory & Executive Context Card
+  if (toolName === 'user_memory') {
+    const data = result as any;
+    const profile = data.currentProfile || {};
+    return (
+      <div className={`p-4 sm:p-5 rounded-2xl space-y-4 border transition-all ${
+        isPureBlack
+          ? 'bg-[#121212] border-neutral-800 text-white'
+          : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+      }`}>
+        <div className="flex items-center justify-between pb-3 border-b border-neutral-800/60">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-violet-600/30">
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h4 className="font-extrabold text-sm sm:text-base tracking-tight">{profile.name || 'Personalized User Profile'}</h4>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-500 border border-amber-500/30">
+                  {profile.tier || 'Executive Diamond'}
+                </span>
+              </div>
+              <p className={`text-xs ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} mt-0.5`}>
+                {profile.email} • User-Aware In-Model Reasoning
+              </p>
+            </div>
+          </div>
+          <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider ${
+            data.action === 'updated'
+              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+              : 'bg-violet-500/15 text-violet-400 border border-violet-500/30'
+          }`}>
+            {data.action === 'updated' ? '✓ Updated' : 'Recalled'}
+          </span>
+        </div>
+
+        {/* Saved Addresses */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <div className={`p-3 rounded-xl border ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-violet-500 font-bold text-[10px] uppercase flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> Saved Home
+              </span>
+              <button
+                type="button"
+                onClick={() => onCommandClick?.(`Take me home`)}
+                className="text-[10px] text-violet-400 hover:underline font-semibold"
+              >
+                Ride Home →
+              </button>
+            </div>
+            <p className={`font-semibold text-xs ${isPureBlack ? 'text-white' : 'text-neutral-900'}`}>
+              {profile.homeAddress || 'Connaught Place, New Delhi'}
+            </p>
+          </div>
+
+          <div className={`p-3 rounded-xl border ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-violet-500 font-bold text-[10px] uppercase flex items-center gap-1">
+                <Navigation className="w-3 h-3" /> Saved Office
+              </span>
+              <button
+                type="button"
+                onClick={() => onCommandClick?.(`Take me to work`)}
+                className="text-[10px] text-violet-400 hover:underline font-semibold"
+              >
+                Ride Office →
+              </button>
+            </div>
+            <p className={`font-semibold text-xs ${isPureBlack ? 'text-white' : 'text-neutral-900'}`}>
+              {profile.workAddress || 'Cyber Hub Building 10, Gurugram'}
+            </p>
+          </div>
+        </div>
+
+        {/* Preferences & Quick Actions */}
+        <div className={`p-2.5 rounded-xl border text-xs flex items-center justify-between ${
+          isPureBlack ? 'bg-[#181818] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+        }`}>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-neutral-500 block">Preferred Fleet</span>
+            <span className="font-bold text-violet-500">{profile.preferredRideService || 'Premier'} (Auto Selected)</span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => onCommandClick?.('Take me home')}
+              className="px-2.5 py-1 text-[11px] rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-bold transition-colors"
+            >
+              "Take me home"
+            </button>
+            <button
+              type="button"
+              onClick={() => onCommandClick?.('Take me to work')}
+              className="px-2.5 py-1 text-[11px] rounded-lg border border-violet-500/40 hover:bg-violet-500/10 text-violet-400 font-bold transition-colors"
+            >
+              "Take me to work"
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 1. Forge Basics & System Architecture Card
   if (toolName === 'forge_basics') {
     const data = result as any;
     return (

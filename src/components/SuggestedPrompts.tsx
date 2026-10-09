@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeMode } from '../types';
-import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane } from 'lucide-react';
+import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User } from 'lucide-react';
 
 interface SuggestedPromptsProps {
   onSelectPrompt: (prompt: string) => void;
@@ -15,6 +15,16 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onSelectProm
       title: 'The Basics',
       text: 'Tell me the basics of Forge and how MCP tools work',
       icon: Sparkles
+    },
+    {
+      title: 'User Memory',
+      text: 'Show my saved user profile & memory',
+      icon: User
+    },
+    {
+      title: 'Ride Home',
+      text: 'Take me home in an Uber Premier',
+      icon: Car
     },
     {
       title: 'Showstopper',

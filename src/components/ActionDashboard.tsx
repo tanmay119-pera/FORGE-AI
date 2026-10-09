@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ToolCallExecution, ThemeMode, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, CabRideOption, ForgeBasicsResult } from '../types';
-import { Car, Train, Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, ShieldCheck, ExternalLink, Navigation, Users, ArrowRight, Plane, Sparkles } from 'lucide-react';
+import { ToolCallExecution, ThemeMode, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, CabRideOption, ForgeBasicsResult, UserMemoryResult } from '../types';
+import { Car, Train, Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, ShieldCheck, ExternalLink, Navigation, Users, ArrowRight, Plane, Sparkles, User } from 'lucide-react';
 import { Avatar } from './Avatar';
 
 interface ActionDashboardProps {
@@ -38,7 +38,9 @@ export const ActionDashboard: React.FC<ActionDashboardProps> = ({ executions, th
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {executions.map((exec) => {
-          if (exec.toolName === 'forge_basics') {
+          if (exec.toolName === 'user_memory') {
+            return <UserMemoryCard key={exec.id} data={exec.result as UserMemoryResult} theme={theme} executedAt={exec.executedAt} />;
+          } else if (exec.toolName === 'forge_basics') {
             return <BasicsCard key={exec.id} data={exec.result as ForgeBasicsResult} theme={theme} executedAt={exec.executedAt} />;
           } else if (exec.toolName === 'cab_dispatch') {
             return <CabCard key={exec.id} data={exec.result as CabBookingResult} theme={theme} executedAt={exec.executedAt} />;
@@ -491,4 +493,70 @@ const BasicsCard: React.FC<{ data: ForgeBasicsResult; theme: ThemeMode; executed
     </div>
   );
 };
+
+// Rich Interactive User Memory Card
+const UserMemoryCard: React.FC<{ data: UserMemoryResult; theme: ThemeMode; executedAt: string }> = ({ data, theme, executedAt }) => {
+  const isPureBlack = theme === 'dark';
+  const profile = data.currentProfile || {};
+
+  return (
+    <div className={`rounded-2xl p-5 border transition-all space-y-4 md:col-span-2 ${
+      isPureBlack ? 'bg-[#0e0e0e] border-neutral-800/80 text-[#ededed]' : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+    }`}>
+      <div className="flex items-start justify-between pb-3 border-b border-neutral-800/40">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-tr from-amber-500 to-violet-600 text-white shadow-lg shadow-violet-600/30">
+            <User className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="font-extrabold text-base tracking-tight">{profile.name || 'Personalized User Memory'}</h4>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-400">
+                {profile.tier || 'Executive Diamond'}
+              </span>
+            </div>
+            <p className="text-[11px] text-neutral-400 mt-0.5">
+              {profile.email} • User-Aware In-Model Reasoning
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider block ${
+            data.action === 'updated' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-violet-500/15 text-violet-400'
+          }`}>
+            {data.action === 'updated' ? '✓ Updated' : 'Recalled'}
+          </span>
+          <span className="text-[10px] text-neutral-500 block mt-1">{executedAt}</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div className={`p-3 rounded-xl border ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+          <div className="flex items-center gap-1.5 text-violet-400 font-bold text-[10px] uppercase mb-1">
+            <MapPin className="w-3.5 h-3.5" /> Saved Home Address
+          </div>
+          <p className="font-semibold text-xs">{profile.homeAddress || 'Connaught Place, New Delhi'}</p>
+        </div>
+
+        <div className={`p-3 rounded-xl border ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+          <div className="flex items-center gap-1.5 text-violet-400 font-bold text-[10px] uppercase mb-1">
+            <Navigation className="w-3.5 h-3.5" /> Saved Office Address
+          </div>
+          <p className="font-semibold text-xs">{profile.workAddress || 'Cyber Hub Building 10, Gurugram'}</p>
+        </div>
+      </div>
+
+      <div className={`p-3 rounded-xl border text-xs flex items-center justify-between ${
+        isPureBlack ? 'bg-[#141414] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+      }`}>
+        <div>
+          <span className="text-[10px] uppercase tracking-wider text-neutral-500 block">Preferred Ride Tier</span>
+          <span className="font-bold text-violet-400">{profile.preferredRideService || 'Premier'} (Auto Selection)</span>
+        </div>
+        <span className="text-[11px] text-neutral-400">Status: In-Model Context Active</span>
+      </div>
+    </div>
+  );
+};
+
 

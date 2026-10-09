@@ -1,16 +1,9 @@
 import React, { useState } from 'react';
-import { ThemeMode } from '../types';
+import { ThemeMode, UserProfile } from '../types';
+export type { UserProfile };
 import { X, Sparkles, Check, Shield } from 'lucide-react';
 import { ForgeIcon } from './ForgeIcon';
 import { Avatar } from './Avatar';
-
-export interface UserProfile {
-  name: string;
-  email: string;
-  avatar: string;
-  provider: 'apple' | 'google' | 'guest';
-  tier: string;
-}
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -31,6 +24,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 }) => {
   const isPureBlack = theme === 'dark';
   const [customName, setCustomName] = useState('');
+  const [customHome, setCustomHome] = useState('');
+  const [customWork, setCustomWork] = useState('');
 
   if (!isOpen) return null;
 
@@ -40,31 +35,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       email: 'alex.rivera@icloud.com',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       provider: 'apple',
-      tier: 'Executive Diamond'
+      tier: 'Executive Diamond',
+      homeAddress: 'Marina Bay Waterfront, Singapore',
+      workAddress: 'Raffles Place Financial Center',
+      preferredRideService: 'Premier',
+      frequentDestinations: ['Changi Airport Terminal 3', 'Marina Bay Sands'],
+      preferences: { quietRide: true, autoConfirmThreshold: '$120' }
     });
     onClose();
   };
 
   const handleGoogleLogin = () => {
     onLogin({
-      name: 'Tanmay Sharma',
-      email: 'tanmay.sharma@gmail.com',
+      name: 'Tanmay (Adesh Srivastava)',
+      email: 'forge.ai@gmail.com',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
       provider: 'google',
-      tier: 'Executive Pro'
+      tier: 'Executive Diamond',
+      homeAddress: 'Connaught Place, New Delhi',
+      workAddress: 'Cyber Hub Building 10, Gurugram',
+      preferredRideService: 'Premier',
+      frequentDestinations: ['Indira Gandhi Airport Terminal 3', 'Central Railway Station Platform 4'],
+      preferences: { quietRide: true, autoConfirmThreshold: '₹800' }
     });
     onClose();
   };
 
   const handleCustomLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const name = customName.trim() || 'Guest Explorer';
+    const name = customName.trim() || 'Tanmay (Adesh Srivastava)';
     onLogin({
       name,
-      email: `${name.toLowerCase().replace(/\s+/g, '.')}@forge.ai`,
+      email: `${name.toLowerCase().replace(/[^a-z0-9]/g, '.')}@forge.ai`,
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
       provider: 'guest',
-      tier: 'Pilot Tier'
+      tier: 'Executive Pilot',
+      homeAddress: customHome.trim() || 'Connaught Place, New Delhi',
+      workAddress: customWork.trim() || 'Cyber Hub Building 10, Gurugram',
+      preferredRideService: 'Premier',
+      frequentDestinations: ['Indira Gandhi Airport Terminal 3', 'Central Railway Station Platform 4'],
+      preferences: { quietRide: true, autoConfirmThreshold: '₹800' }
     });
     onClose();
   };

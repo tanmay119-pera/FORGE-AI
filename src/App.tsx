@@ -15,7 +15,7 @@ export default function App() {
     return saved || 'dark';
   });
 
-  // User Profile (Apple ID / Google ID)
+  // User Profile (Apple ID / Google ID / Personalized Executive Memory)
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
     const saved = localStorage.getItem('forge_user');
     if (saved) {
@@ -30,7 +30,15 @@ export default function App() {
       email: 'forge.ai@gmail.com',
       avatar: '',
       provider: 'google',
-      tier: 'Executive'
+      tier: 'Executive Diamond',
+      homeAddress: 'Connaught Place, New Delhi',
+      workAddress: 'Cyber Hub Building 10, Gurugram',
+      preferredRideService: 'Premier',
+      frequentDestinations: ['Indira Gandhi Airport Terminal 3', 'Central Railway Station Platform 4'],
+      preferences: {
+        quietRide: true,
+        autoConfirmThreshold: '₹800'
+      }
     };
   });
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -107,9 +115,15 @@ export default function App() {
     };
   }, []);
 
+  // Sync active user profile into orchestrator & Gemini model
+  useEffect(() => {
+    orchestrator.setUserProfile(currentUser);
+  }, [currentUser]);
+
   const handleLogin = (user: UserProfile) => {
     setCurrentUser(user);
     localStorage.setItem('forge_user', JSON.stringify(user));
+    orchestrator.setUserProfile(user);
     const firstName = user.name.split(' ')[0];
     const greetingText = `Welcome back, ${firstName}. What would you like to handle?`;
     setAssistantSpeech(greetingText);
