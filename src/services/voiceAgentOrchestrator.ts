@@ -13,6 +13,7 @@ export interface OrchestratorCallbacks {
 
 export class VoiceAgentOrchestrator {
   private callbacks: OrchestratorCallbacks | null = null;
+  private userProfile: any = null;
   private recognition: any = null;
   private isListening = false;
   private synth: SpeechSynthesis | null = null;
@@ -22,6 +23,11 @@ export class VoiceAgentOrchestrator {
     pickup?: string;
     destination?: string;
   } | null = null;
+
+  public setUserProfile(profile: any) {
+    this.userProfile = profile;
+    geminiService.setUserContext(profile);
+  }
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -158,6 +164,7 @@ export class VoiceAgentOrchestrator {
       return;
     }
 
+    const isMemoryQuery = lower.includes('who am i') || lower.includes('my profile') || lower.includes('my address') || lower.includes('home address') || lower.includes('work address') || lower.includes('my memory') || lower.includes('saved locations') || lower.includes('remember my');
     const isBasicsQuery = lower.includes('basic') || lower.includes('how does forge work') || lower.includes('how do you work') || lower.includes('what can you do') || lower.includes('features') || lower.includes('tour') || lower.includes('guide') || lower.includes('architecture') || lower.includes('what are you');
     const isCab = lower.includes('cab') || lower.includes('taxi') || lower.includes('uber') || lower.includes('ola') || lower.includes('ride');
     const isTrain = lower.includes('train') || lower.includes('shatabdi') || lower.includes('vande') || lower.includes('status') || lower.includes('platform');
@@ -168,6 +175,23 @@ export class VoiceAgentOrchestrator {
     const multiPlan = (isTrain || lower.includes('station')) && (isCab || lower.includes('go') || lower.includes('get to'));
 
     const isCreatorQuery = lower.includes('who are you') || lower.includes('who made you') || lower.includes('who built you') || lower.includes('who created you') || lower.includes('creator');
+
+    if (isMemoryQuery) {
+      if (lower.includes('remember my home') || lower.includes('set home')) {
+        const homeMatch = promptText.match(/(?:remember my home(?: address)?(?: is| to)|set home(?: address)? to)\s+(.+)/i);
+        const val = homeMatch ? homeMatch[1].trim() : 'Connaught Place, New Delhi';
+        await this.executeSingleAction('user_memory', { action: 'set', key: 'homeAddress', value: val });
+        return;
+      } else if (lower.includes('remember my work') || lower.includes('set work')) {
+        const workMatch = promptText.match(/(?:remember my work(?: address)?(?: is| to)|set work(?: address)? to)\s+(.+)/i);
+        const val = workMatch ? workMatch[1].trim() : 'Cyber Hub, Gurugram';
+        await this.executeSingleAction('user_memory', { action: 'set', key: 'workAddress', value: val });
+        return;
+      } else {
+        await this.executeSingleAction('user_memory', { action: 'get', key: 'all' });
+        return;
+      }
+    }
 
     if (isBasicsQuery) {
       await this.executeSingleAction('forge_basics', { topic: 'overview' });
@@ -182,6 +206,28 @@ export class VoiceAgentOrchestrator {
     if (multiPlan) {
       await this.executeMultiActionPlan();
     } else if (isCab) {
+      // Smart Home / Work Resolution
+      if (lower.includes('take me home') || lower.includes('ride home') || lower.includes('cab home')) {
+        const home = this.userProfile?.homeAddress || 'Connaught Place, New Delhi';
+        const work = this.userProfile?.workAddress || 'Cyber Hub Building 10, Gurugram';
+        await this.executeSingleAction('cab_dispatch', {
+          pickup: work,
+          destination: home,
+          vehicle_type: this.userProfile?.preferredRideService || 'Premier'
+        });
+        return;
+      }
+      if (lower.includes('take me to work') || lower.includes('ride to office') || lower.includes('cab to work') || lower.includes('to office')) {
+        const home = this.userProfile?.homeAddress || 'Connaught Place, New Delhi';
+        const work = this.userProfile?.workAddress || 'Cyber Hub Building 10, Gurugram';
+        await this.executeSingleAction('cab_dispatch', {
+          pickup: home,
+          destination: work,
+          vehicle_type: this.userProfile?.preferredRideService || 'Premier'
+        });
+        return;
+      }
+
       // Check if user already specified both pickup and destination
       const fromToMatch = promptText.match(/(?:from\s+)(.+?)\s+(?:to|heading to|going to)\s+(.+)/i);
       if (fromToMatch) {
@@ -190,7 +236,7 @@ export class VoiceAgentOrchestrator {
         await this.executeSingleAction('cab_dispatch', {
           pickup,
           destination,
-          vehicle_type: 'UberGo'
+          vehicle_type: this.userProfile?.preferredRideService || 'Premier'
         });
         return;
       }
@@ -254,7 +300,9 @@ export class VoiceAgentOrchestrator {
       this.callbacks?.onToolExecuted(execution);
 
       let speech = '';
-      if (toolName === 'forge_basics') {
+      if (toolName === 'user_memory') {
+        speech = result.message || `Loaded personalized memory.`;
+      } else if (toolName === 'forge_basics') {
         speech = `Forge is an executive autonomous voice co-pilot built by Tanmay. I listen in sub-25ms, reason with Gemini, and trigger real-world tools—booking 5-tier Uber rides, checking express trains and flights, syncing calendars, and comparing instant prices across Blinkit.`;
       } else if (toolName === 'cab_dispatch') {
         speech = `Searched Uber options from ${result.pickup} to ${result.destination}. UberGo is ${result.fareEstimate} arriving in ${result.etaMinutes} mins. Driver ${result.driver.name} is confirmed with PIN ${result.otp}.`;

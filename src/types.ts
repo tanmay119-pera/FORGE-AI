@@ -162,11 +162,37 @@ export interface ForgeBasicsResult {
   };
 }
 
+export interface UserProfile {
+  name: string;
+  email: string;
+  avatar: string;
+  provider: 'apple' | 'google' | 'guest';
+  tier: string;
+  homeAddress?: string;
+  workAddress?: string;
+  preferredRideService?: 'UberGo' | 'Premier' | 'UberXL' | 'Uber Black';
+  frequentDestinations?: string[];
+  preferences?: {
+    temperature?: string;
+    quietRide?: boolean;
+    autoConfirmThreshold?: string;
+  };
+}
+
+export interface UserMemoryResult {
+  action: 'recalled' | 'updated';
+  key: string;
+  value: string;
+  currentProfile: Partial<UserProfile>;
+  message: string;
+}
+
 export interface ToolCallExecution {
   id: string;
   toolName: string;
   args: any;
   status: 'pending' | 'success' | 'failed';
-  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | any;
+  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | UserMemoryResult | any;
   executedAt: string;
 }
+

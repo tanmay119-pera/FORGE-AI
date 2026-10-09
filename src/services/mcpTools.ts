@@ -1,6 +1,30 @@
-import { MCPToolDefinition, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, ForgeBasicsResult } from '../types';
+import { MCPToolDefinition, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, ForgeBasicsResult, UserMemoryResult } from '../types';
 
 export const MCP_TOOLS: MCPToolDefinition[] = [
+  {
+    name: 'user_memory',
+    description: 'Recalls, manages, or updates personalized user preferences, saved locations (homeAddress, workAddress), preferredRideService, and frequent travel routes.',
+    parameters: {
+      type: 'object',
+      properties: {
+        action: {
+          type: 'string',
+          description: 'Memory action: "get" to inspect saved profile memory, "set" to update a preference or address',
+          enum: ['get', 'set']
+        },
+        key: {
+          type: 'string',
+          description: 'Attribute key: "homeAddress", "workAddress", "preferredRideService", "quietRide", or "frequentDestinations"',
+          enum: ['homeAddress', 'workAddress', 'preferredRideService', 'quietRide', 'frequentDestinations', 'all']
+        },
+        value: {
+          type: 'string',
+          description: 'The new value to store when action is "set"'
+        }
+      },
+      required: ['action']
+    }
+  },
   {
     name: 'forge_basics',
     description: 'Explains the system fundamentals, core architecture, real-world tools, and sample voice commands of Forge AI.',
@@ -132,6 +156,69 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
   await new Promise(resolve => setTimeout(resolve, 50));
 
   switch (name) {
+    case 'user_memory': {
+      const action = args.action || 'get';
+      const key = args.key || 'all';
+      const value = args.value ? String(args.value).trim() : '';
+
+      let savedUser: any = null;
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem('forge_user');
+        if (raw) {
+          try { savedUser = JSON.parse(raw); } catch (e) {}
+        }
+      }
+      if (!savedUser) {
+        savedUser = {
+          name: 'Tanmay (Adesh Srivastava)',
+          email: 'forge.ai@gmail.com',
+          avatar: '',
+          provider: 'google',
+          tier: 'Executive Diamond',
+          homeAddress: 'Connaught Place, New Delhi',
+          workAddress: 'Cyber Hub Building 10, Gurugram',
+          preferredRideService: 'Premier',
+          frequentDestinations: ['Indira Gandhi Airport Terminal 3', 'Central Railway Station Platform 4'],
+          preferences: { quietRide: true, autoConfirmThreshold: '₹800' }
+        };
+      }
+
+      if (action === 'set' && key && value) {
+        if (key === 'homeAddress') savedUser.homeAddress = value;
+        else if (key === 'workAddress') savedUser.workAddress = value;
+        else if (key === 'preferredRideService') savedUser.preferredRideService = value;
+        else if (key === 'frequentDestinations') {
+          if (!savedUser.frequentDestinations) savedUser.frequentDestinations = [];
+          if (!savedUser.frequentDestinations.includes(value)) savedUser.frequentDestinations.push(value);
+        } else if (key === 'quietRide') {
+          if (!savedUser.preferences) savedUser.preferences = {};
+          savedUser.preferences.quietRide = value.toLowerCase() === 'true';
+        }
+
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('forge_user', JSON.stringify(savedUser));
+        }
+
+        const result: UserMemoryResult = {
+          action: 'updated',
+          key,
+          value,
+          currentProfile: savedUser,
+          message: `Personalized memory updated: ${key} set to "${value}".`
+        };
+        return result;
+      }
+
+      const result: UserMemoryResult = {
+        action: 'recalled',
+        key: key || 'all',
+        value: savedUser[key] || JSON.stringify(savedUser),
+        currentProfile: savedUser,
+        message: `Personalized user profile loaded for ${savedUser.name}. Home: ${savedUser.homeAddress || 'Connaught Place'}, Work: ${savedUser.workAddress || 'Cyber Hub'}, Preferred Cab: ${savedUser.preferredRideService || 'Premier'}.`
+      };
+      return result;
+    }
+
     case 'forge_basics': {
       const result: ForgeBasicsResult = {
         title: 'Forge Autonomous AI Architecture',
