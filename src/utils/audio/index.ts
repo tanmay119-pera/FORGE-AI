@@ -5,3 +5,5 @@ export * from "./silenceTrimmer.ts";
 export * from "./waveformStats.ts";
 export * from "./frameChunker.ts";
 export * from "./presets.ts";
+export * from "./decibelUtils.ts";
+export * from "./ringBuffer.ts";
