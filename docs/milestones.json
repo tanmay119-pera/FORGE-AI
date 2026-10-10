@@ -1,0 +1,10 @@
+{
+  "batches": [
+    {
+      "date": "2026-10-10",
+      "commits": 25,
+      "summary": "Audio DSP pipeline, VAD, PCM resampler, AudioLevelMeter, and unit tests"
+    }
+  ],
+  "total": 25
+}
