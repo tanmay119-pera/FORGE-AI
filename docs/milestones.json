@@ -4,7 +4,12 @@
       "date": "2026-10-10",
       "commits": 25,
       "summary": "Audio DSP pipeline, VAD, PCM resampler, AudioLevelMeter, and unit tests"
+    },
+    {
+      "date": "2026-10-11",
+      "commits": 25,
+      "summary": "MCP Registry, schema validation, rate limiting, circuit breaker, and unit tests"
     }
   ],
-  "total": 25
+  "total": 50
 }
