@@ -262,7 +262,8 @@ export interface ToolCallExecution {
   toolName: string;
   args: any;
   status: 'pending' | 'success' | 'failed';
-  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | UserMemoryResult | any;
+  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | UserMemoryResult | WeatherRadarResult | HotelBookingResult | CurrencyConverterResult | SmartChecklistResult | TrainCoachPositionResult | any;
   executedAt: string;
 }
+
 
