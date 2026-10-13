@@ -1,6 +1,7 @@
-import { MCPToolDefinition, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, ForgeBasicsResult, UserMemoryResult } from '../types';
+import { MCPToolDefinition, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, ForgeBasicsResult, UserMemoryResult, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult } from '../types';
 
 export const MCP_TOOLS: MCPToolDefinition[] = [
+
   {
     name: 'user_memory',
     description: 'Recalls, manages, or updates personalized user preferences, saved locations (homeAddress, workAddress), preferredRideService, and frequent travel routes.',
@@ -147,8 +148,28 @@ export const MCP_TOOLS: MCPToolDefinition[] = [
       },
       required: ['item_name']
     }
+  },
+  {
+    name: 'weather_radar',
+    description: 'Fetches live hyper-local weather conditions, rain forecast, visibility, and travel advisories for departure and destination cities.',
+    parameters: {
+      type: 'object',
+      properties: {
+        city: {
+          type: 'string',
+          description: 'City or destination name (e.g. "New Delhi", "Mumbai", "London", "Bengaluru")'
+        },
+        timeframe: {
+          type: 'string',
+          description: 'Forecast window: "current", "hourly", or "daily"',
+          enum: ['current', 'hourly', 'daily']
+        }
+      },
+      required: ['city']
+    }
   }
 ];
+
 
 // Execution simulators that return rich realistic side effects
 export async function executeMCPTool(name: string, args: Record<string, any>): Promise<any> {
