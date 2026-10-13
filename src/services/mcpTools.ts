@@ -750,10 +750,113 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
       return result;
     }
 
+    case 'currency_converter': {
+      const amount = Number(args.amount) || 100;
+      const from = String(args.from_currency || 'USD').toUpperCase();
+      const to = String(args.to_currency || 'INR').toUpperCase();
+
+      // Rates relative to USD
+      const ratesToUSD: Record<string, number> = {
+        USD: 1.0,
+        INR: 0.0118,
+        EUR: 1.09,
+        GBP: 1.30,
+        AED: 0.272,
+        SGD: 0.76,
+        JPY: 0.0067
+      };
+
+      const fromRate = ratesToUSD[from] || 1.0;
+      const toRate = ratesToUSD[to] || 0.0118;
+      const exchangeRate = Number((fromRate / toRate).toFixed(4));
+      const convertedAmount = Number((amount * exchangeRate).toFixed(2));
+
+      const symbolMap: Record<string, string> = {
+        USD: '$',
+        INR: '₹',
+        EUR: '€',
+        GBP: '£',
+        AED: 'AED ',
+        SGD: 'S$',
+        JPY: '¥'
+      };
+
+      const toSymbol = symbolMap[to] || `${to} `;
+      const fromSymbol = symbolMap[from] || `${from} `;
+
+      const result: CurrencyConverterResult = {
+        amount,
+        fromCurrency: from,
+        toCurrency: to,
+        convertedAmount,
+        exchangeRate,
+        formattedResult: `${fromSymbol}${amount.toLocaleString()} = ${toSymbol}${convertedAmount.toLocaleString()}`,
+        feeEstimate: 'Zero markup on Forge Corporate FX • Bank savings: ~2.4%'
+      };
+      return result;
+    }
+
+    case 'smart_checklist': {
+      const destination = args.destination || 'Mumbai';
+      const tripType = args.trip_type || 'business';
+      const isRainy = destination.toLowerCase().includes('mumbai') || destination.toLowerCase().includes('monsoon');
+      const isCold = destination.toLowerCase().includes('kashmir') || destination.toLowerCase().includes('shimla');
+
+      const categories = [
+        {
+          categoryName: 'Travel & Identity Essentials',
+          items: [
+            { item: 'Government ID / Passport / Visa Copies', essential: true, packed: true },
+            { item: 'Digital Boarding Pass & Confirmation PDF', essential: true, packed: true },
+            { item: 'Corporate Credit Cards + Forex Card', essential: true, packed: false }
+          ]
+        },
+        {
+          categoryName: 'Tech & Electronics',
+          items: [
+            { item: 'Laptop + Fast GaN Charger', essential: true, packed: false },
+            { item: 'Noise-Cancelling Headphones', essential: false, packed: true },
+            { item: 'Universal Power Adapter & 10000mAh Power Bank', essential: true, packed: false }
+          ]
+        },
+        {
+          categoryName: isRainy ? 'Monsoon & Weather Gear' : isCold ? 'Cold Climate Essentials' : 'Apparel & Wardrobe',
+          items: isRainy ? [
+            { item: 'Compact Windproof Umbrella', essential: true, packed: false },
+            { item: 'Waterproof Laptop Sleeve & Rain Cover', essential: true, packed: false },
+            { item: 'Quick-dry Business Shirts', essential: false, packed: false }
+          ] : isCold ? [
+            { item: 'Down Jacket & Thermal Layers', essential: true, packed: false },
+            { item: 'Woolen Socks & Gloves', essential: true, packed: false },
+            { item: 'Moisturizer & Lip Balm', essential: false, packed: true }
+          ] : [
+            { item: 'Formal Executive Outfits (2 Pairs)', essential: true, packed: false },
+            { item: 'Comfortable Walking Shoes', essential: true, packed: false },
+            { item: 'Gym & Lounge Wear', essential: false, packed: false }
+          ]
+        }
+      ];
+
+      const totalItems = categories.reduce((acc, cat) => acc + cat.items.length, 0);
+
+      const result: SmartChecklistResult = {
+        tripType,
+        destination,
+        weatherContext: isRainy ? 'High Humidity & Intermittent Showers expected' : isCold ? 'Sub-10°C chilly conditions' : 'Mild & Temperate',
+        totalItems,
+        categories,
+        proactiveTip: isRainy 
+          ? 'Carry weather-resistant carry-on. Traffic in Mumbai increases travel time by 30% during precipitation.'
+          : 'Pack light cabin baggage to bypass check-in queues on arrival.'
+      };
+      return result;
+    }
+
     default:
       throw new Error(`Tool not found: ${name}`);
   }
 }
+
 
 
 
