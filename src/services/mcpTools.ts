@@ -190,8 +190,31 @@ export const MCP_TOOLS: MCPToolDefinition[] = [
       },
       required: ['destination']
     }
+  },
+  {
+    name: 'currency_converter',
+    description: 'Calculates real-time foreign currency conversions, mid-market FX rates, and estimated overseas card fees for international and domestic travel.',
+    parameters: {
+      type: 'object',
+      properties: {
+        amount: {
+          type: 'number',
+          description: 'Amount in source currency to convert (e.g. 500, 12000)'
+        },
+        from_currency: {
+          type: 'string',
+          description: 'Source 3-letter currency code (e.g. "USD", "INR", "EUR", "GBP", "AED", "SGD")'
+        },
+        to_currency: {
+          type: 'string',
+          description: 'Target 3-letter currency code (e.g. "INR", "USD", "EUR", "AED")'
+        }
+      },
+      required: ['amount', 'from_currency', 'to_currency']
+    }
   }
 ];
+
 
 
 
