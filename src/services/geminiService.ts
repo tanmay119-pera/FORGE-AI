@@ -292,9 +292,20 @@ Keep your spoken responses executive, concise (1-2 sentences max), crisp, profes
         fallbackSpeech = `${toolResult.airline} flight ${toolResult.flightNumber} to ${toolResult.destination} is ${toolResult.status} at ${toolResult.terminal}, Gate ${toolResult.gate}. Security wait is ${toolResult.securityWaitMins} mins.`;
       } else if (toolName === 'calendar_sync') {
         fallbackSpeech = `Synced to your calendar: ${toolResult.title} at ${toolResult.startTime}.`;
+      } else if (toolName === 'weather_radar') {
+        fallbackSpeech = `In ${toolResult.city}, it is currently ${toolResult.temperature} and ${toolResult.condition} with ${toolResult.rainChance} chance of rain.`;
+      } else if (toolName === 'hotel_booking') {
+        fallbackSpeech = `Top accommodation for ${toolResult.destination} is ${toolResult.recommendedHotel} starting at ${toolResult.hotels[0]?.pricePerNight}.`;
+      } else if (toolName === 'currency_converter') {
+        fallbackSpeech = `${toolResult.formattedResult}. Mid-market rate is ${toolResult.exchangeRate}.`;
+      } else if (toolName === 'smart_checklist') {
+        fallbackSpeech = `Prepared ${toolResult.totalItems}-item ${toolResult.tripType} packing list for ${toolResult.destination}. ${toolResult.proactiveTip}`;
+      } else if (toolName === 'coach_position') {
+        fallbackSpeech = `${toolResult.trainName}: Coach ${toolResult.passengerCoach} is at ${toolResult.platform}. ${toolResult.walkingTip}`;
       } else {
         fallbackSpeech = `Found ${toolResult.product} on ${toolResult.cheapestVendor} for ${toolResult.lowestPrice}.`;
       }
+
       this.conversationHistory.push({
         role: 'model',
         parts: [{ text: fallbackSpeech }]
