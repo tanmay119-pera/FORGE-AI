@@ -143,7 +143,26 @@ CRITICAL CAB & RIDESHARE RULES:
      IMMEDIATELY call the cab_dispatch tool with pickup, destination, and vehicle_type="${activeUser.preferredRideService || 'Premier'}".
   5. After cab_dispatch returns, summarize the Uber options with prices and ETAs, and confirm the best match.
 
+CRITICAL WEATHER, TRAVEL & LOGISTICS COORDINATION RULES:
+1. WEATHER RADAR & DEPARTURE BUFFERS:
+   - When asked about weather ("How is the weather in Mumbai?", "Is it raining in Delhi?", "Weather forecast"):
+     Call weather_radar with the requested city.
+   - Proactive Safety: If precipitation is detected along a transit corridor, proactively advise an extra 15-20 minute departure buffer.
+2. HOTEL & ACCOMMODATION:
+   - When asked for places to stay ("Find a hotel in Mumbai BKC", "Book hotel near airport", "Luxury stays"):
+     Call hotel_booking with destination and preference.
+3. CURRENCY CONVERSION:
+   - When asked about currency or exchange ("Convert 500 dollars to rupees", "What is 1000 EUR in INR?"):
+     Call currency_converter with amount, from_currency, and to_currency.
+4. PACKING & CHECKLIST:
+   - When asked what to pack ("What should I pack for Mumbai?", "Checklist for Kashmir trip"):
+     Call smart_checklist with destination and trip_type.
+5. TRAIN COACH PLATFORM MAPPING:
+   - When asked "Where is coach C4?", "Find my coach on Shatabdi", "Coach position for 12004":
+     Call coach_position with train_query and coach_code.
+
 Keep your spoken responses executive, concise (1-2 sentences max), crisp, professional, and confident.`;
+
 
     // Append to conversation history (keep max 10 turns)
     this.conversationHistory.push({
