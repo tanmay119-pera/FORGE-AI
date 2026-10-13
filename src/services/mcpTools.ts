@@ -852,10 +852,41 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
       return result;
     }
 
+    case 'coach_position': {
+      const trainQuery = args.train_query || '12004 Lucknow Shatabdi';
+      const passengerCoach = args.coach_code || 'C4';
+
+      const coaches = [
+        { code: 'ENG', classType: 'Electric WAP-7 Locomotive', positionFromEngine: 0 },
+        { code: 'EOG', classType: 'End-on-Generation Power Car', positionFromEngine: 1 },
+        { code: 'C1', classType: 'AC Chair Car', positionFromEngine: 2 },
+        { code: 'C2', classType: 'AC Chair Car', positionFromEngine: 3 },
+        { code: 'C3', classType: 'AC Chair Car', positionFromEngine: 4 },
+        { code: 'C4', classType: 'AC Chair Car (Executive Reserve)', positionFromEngine: 5 },
+        { code: 'E1', classType: 'Executive Class', positionFromEngine: 6 },
+        { code: 'E2', classType: 'Executive Class', positionFromEngine: 7 },
+        { code: 'C5', classType: 'AC Chair Car', positionFromEngine: 8 },
+        { code: 'C6', classType: 'AC Chair Car', positionFromEngine: 9 },
+        { code: 'C7', classType: 'AC Chair Car', positionFromEngine: 10 },
+        { code: 'EOG', classType: 'Rear Generator Guard Van', positionFromEngine: 11 }
+      ];
+
+      const result: TrainCoachPositionResult = {
+        trainNumber: '12004',
+        trainName: trainQuery,
+        platform: 'Platform 4 (North Side Escalator)',
+        coaches,
+        passengerCoach,
+        walkingTip: `Coach ${passengerCoach} is situated 5th from the locomotive. Enter from Station Gate 2 and take Escalator 2 directly onto Platform 4.`
+      };
+      return result;
+    }
+
     default:
       throw new Error(`Tool not found: ${name}`);
   }
 }
+
 
 
 
