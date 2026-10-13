@@ -171,10 +171,16 @@ export class VoiceAgentOrchestrator {
     const isFlight = lower.includes('flight') || lower.includes('indigo') || lower.includes('air india') || lower.includes('emirates') || lower.includes('airport') || lower.includes('gate') || lower.includes('terminal');
     const isCalendar = lower.includes('remind') || lower.includes('calendar') || lower.includes('schedule') || lower.includes('meeting');
     const isPrice = lower.includes('price') || lower.includes('cost') || lower.includes('charger') || lower.includes('buy') || lower.includes('blinkit') || lower.includes('zepto');
+    const isWeather = lower.includes('weather') || lower.includes('rain') || lower.includes('temperature') || lower.includes('climate') || lower.includes('forecast');
+    const isHotel = lower.includes('hotel') || lower.includes('stay') || lower.includes('resort') || lower.includes('accommodation') || lower.includes('suite');
+    const isChecklist = lower.includes('pack') || lower.includes('packing') || lower.includes('checklist') || lower.includes('luggage') || lower.includes('baggage');
+    const isCurrency = lower.includes('currency') || lower.includes('convert') || lower.includes('exchange rate') || lower.includes('dollar') || lower.includes('rupee') || lower.includes('forex');
+    const isCoach = lower.includes('coach') || lower.includes('bogie') || lower.includes('seat position') || lower.includes('rake') || lower.includes('platform walk');
 
     const multiPlan = (isTrain || lower.includes('station')) && (isCab || lower.includes('go') || lower.includes('get to'));
 
     const isCreatorQuery = lower.includes('who are you') || lower.includes('who made you') || lower.includes('who built you') || lower.includes('who created you') || lower.includes('creator');
+
 
     if (isMemoryQuery) {
       if (lower.includes('remember my home') || lower.includes('set home')) {
@@ -266,10 +272,25 @@ export class VoiceAgentOrchestrator {
       await this.executeSingleAction('local_pricing', {
         item_name: 'Apple 30W USB-C Fast Charger'
       });
+    } else if (isWeather) {
+      const city = lower.includes('mumbai') ? 'Mumbai' : lower.includes('bengaluru') ? 'Bengaluru' : lower.includes('dubai') ? 'Dubai' : lower.includes('london') ? 'London' : 'New Delhi';
+      await this.executeSingleAction('weather_radar', { city });
+    } else if (isHotel) {
+      const destination = lower.includes('mumbai') ? 'Mumbai BKC' : lower.includes('bengaluru') ? 'Bengaluru Whitefield' : lower.includes('dubai') ? 'Dubai Downtown' : 'New Delhi Connaught Place';
+      const preference = lower.includes('luxury') ? 'luxury' : lower.includes('budget') ? 'budget' : 'business';
+      await this.executeSingleAction('hotel_booking', { destination, preference });
+    } else if (isChecklist) {
+      const destination = lower.includes('kashmir') ? 'Kashmir' : lower.includes('mumbai') ? 'Mumbai' : 'Bengaluru';
+      await this.executeSingleAction('smart_checklist', { destination, trip_type: 'business', duration_days: 3 });
+    } else if (isCurrency) {
+      await this.executeSingleAction('currency_converter', { amount: 500, from_currency: 'USD', to_currency: 'INR' });
+    } else if (isCoach) {
+      await this.executeSingleAction('coach_position', { train_query: '12004 Shatabdi Express', coach_code: 'C4' });
     } else {
       await this.speakResponse(`I am FORGE, built by Tanmay (Adesh Srivastava). You can say: "Tell me the basics", "Book an Uber to Central Station", or "Check Vande Bharat train status".`);
     }
   }
+
 
   private async executeSingleAction(toolName: string, args: Record<string, any>) {
     this.callbacks?.onVoiceStateChange('executing');
