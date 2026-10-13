@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeMode } from '../types';
-import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User } from 'lucide-react';
+import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User, CloudRain, Building2, DollarSign, CheckSquare, Compass } from 'lucide-react';
 
 interface SuggestedPromptsProps {
   onSelectPrompt: (prompt: string) => void;
@@ -25,6 +25,31 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onSelectProm
       title: 'Ride Home',
       text: 'Take me home in an Uber Premier',
       icon: Car
+    },
+    {
+      title: 'Weather Radar',
+      text: 'Check live weather radar and rain forecast for Mumbai',
+      icon: CloudRain
+    },
+    {
+      title: 'Executive Stays',
+      text: 'Find executive luxury hotels in Mumbai BKC',
+      icon: Building2
+    },
+    {
+      title: 'FX Converter',
+      text: 'Convert 500 dollars to rupees',
+      icon: DollarSign
+    },
+    {
+      title: 'Smart Checklist',
+      text: 'What should I pack for Mumbai trip?',
+      icon: CheckSquare
+    },
+    {
+      title: 'Coach Position',
+      text: 'Where is coach C4 on 12004 Shatabdi Express?',
+      icon: Compass
     },
     {
       title: 'Showstopper',
@@ -62,6 +87,7 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onSelectProm
       icon: ShoppingBag
     }
   ];
+
 
   return (
     <div className="space-y-2.5">

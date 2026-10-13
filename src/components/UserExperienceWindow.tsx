@@ -737,8 +737,114 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
                   "Tell me the basics of Forge" →
                 </p>
               </div>
+
+              <div
+                onClick={() => handleQuickChip('Check live weather radar and rain forecast for Mumbai')}
+                className="cursor-pointer group space-y-1.5"
+              >
+                <p className={`text-lg sm:text-xl font-bold tracking-tight transition-colors ${
+                  isPureBlack ? 'text-white group-hover:text-violet-400' : 'text-neutral-900 group-hover:text-violet-600'
+                }`}>
+                  Weather Radar
+                </p>
+                <p className={`text-xs sm:text-sm leading-relaxed font-normal ${
+                  isPureBlack ? 'text-neutral-400' : 'text-neutral-600'
+                }`}>
+                  Hyper-local radar, precipitation warnings, and automated departure buffers.
+                </p>
+                <p className={`text-xs pt-1 transition-colors ${
+                  isPureBlack ? 'text-neutral-500 group-hover:text-neutral-300' : 'text-neutral-500 group-hover:text-neutral-900'
+                }`}>
+                  "Check live weather radar for Mumbai" →
+                </p>
+              </div>
+
+              <div
+                onClick={() => handleQuickChip('Find executive luxury hotels in Mumbai BKC')}
+                className="cursor-pointer group space-y-1.5"
+              >
+                <p className={`text-lg sm:text-xl font-bold tracking-tight transition-colors ${
+                  isPureBlack ? 'text-white group-hover:text-violet-400' : 'text-neutral-900 group-hover:text-violet-600'
+                }`}>
+                  Executive Stays
+                </p>
+                <p className={`text-xs sm:text-sm leading-relaxed font-normal ${
+                  isPureBlack ? 'text-neutral-400' : 'text-neutral-600'
+                }`}>
+                  Discover business suites, club lounges, and corporate transit accommodations.
+                </p>
+                <p className={`text-xs pt-1 transition-colors ${
+                  isPureBlack ? 'text-neutral-500 group-hover:text-neutral-300' : 'text-neutral-500 group-hover:text-neutral-900'
+                }`}>
+                  "Find luxury hotels in Mumbai BKC" →
+                </p>
+              </div>
+
+              <div
+                onClick={() => handleQuickChip('Convert 500 dollars to rupees')}
+                className="cursor-pointer group space-y-1.5"
+              >
+                <p className={`text-lg sm:text-xl font-bold tracking-tight transition-colors ${
+                  isPureBlack ? 'text-white group-hover:text-violet-400' : 'text-neutral-900 group-hover:text-violet-600'
+                }`}>
+                  FX Converter
+                </p>
+                <p className={`text-xs sm:text-sm leading-relaxed font-normal ${
+                  isPureBlack ? 'text-neutral-400' : 'text-neutral-600'
+                }`}>
+                  Real-time interbank foreign exchange rates with zero markup calculation.
+                </p>
+                <p className={`text-xs pt-1 transition-colors ${
+                  isPureBlack ? 'text-neutral-500 group-hover:text-neutral-300' : 'text-neutral-500 group-hover:text-neutral-900'
+                }`}>
+                  "Convert 500 dollars to rupees" →
+                </p>
+              </div>
+
+              <div
+                onClick={() => handleQuickChip('What should I pack for Mumbai trip?')}
+                className="cursor-pointer group space-y-1.5"
+              >
+                <p className={`text-lg sm:text-xl font-bold tracking-tight transition-colors ${
+                  isPureBlack ? 'text-white group-hover:text-violet-400' : 'text-neutral-900 group-hover:text-violet-600'
+                }`}>
+                  Smart Checklist
+                </p>
+                <p className={`text-xs sm:text-sm leading-relaxed font-normal ${
+                  isPureBlack ? 'text-neutral-400' : 'text-neutral-600'
+                }`}>
+                  Climate-aware packing lists tailored to trip duration and destination conditions.
+                </p>
+                <p className={`text-xs pt-1 transition-colors ${
+                  isPureBlack ? 'text-neutral-500 group-hover:text-neutral-300' : 'text-neutral-500 group-hover:text-neutral-900'
+                }`}>
+                  "What should I pack for Mumbai trip?" →
+                </p>
+              </div>
+
+              <div
+                onClick={() => handleQuickChip('Where is coach C4 on 12004 Shatabdi Express?')}
+                className="cursor-pointer group space-y-1.5"
+              >
+                <p className={`text-lg sm:text-xl font-bold tracking-tight transition-colors ${
+                  isPureBlack ? 'text-white group-hover:text-violet-400' : 'text-neutral-900 group-hover:text-violet-600'
+                }`}>
+                  Coach Position Guide
+                </p>
+                <p className={`text-xs sm:text-sm leading-relaxed font-normal ${
+                  isPureBlack ? 'text-neutral-400' : 'text-neutral-600'
+                }`}>
+                  Engine-to-guard rake sequence and platform escalator walking directions.
+                </p>
+                <p className={`text-xs pt-1 transition-colors ${
+                  isPureBlack ? 'text-neutral-500 group-hover:text-neutral-300' : 'text-neutral-500 group-hover:text-neutral-900'
+                }`}>
+                  "Where is coach C4 on Shatabdi?" →
+                </p>
+              </div>
             </div>
           </div>
+
 
           {/* Clean Creator Credit */}
           <div className="mt-16 mb-8 text-center select-none text-xs sm:text-sm font-medium flex flex-col items-center gap-1.5">

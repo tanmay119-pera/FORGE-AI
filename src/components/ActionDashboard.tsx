@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ToolCallExecution, ThemeMode, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, CabRideOption, ForgeBasicsResult, UserMemoryResult } from '../types';
-import { Car, Train, Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, ShieldCheck, ExternalLink, Navigation, Users, ArrowRight, Plane, Sparkles, User } from 'lucide-react';
+import { ToolCallExecution, ThemeMode, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, CabRideOption, ForgeBasicsResult, UserMemoryResult, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult } from '../types';
+import { Car, Train, Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, ShieldCheck, ExternalLink, Navigation, Users, ArrowRight, Plane, Sparkles, User, CloudRain, Building2, DollarSign, CheckSquare, Compass } from 'lucide-react';
+
 import { Avatar } from './Avatar';
 
 interface ActionDashboardProps {
@@ -52,9 +53,20 @@ export const ActionDashboard: React.FC<ActionDashboardProps> = ({ executions, th
             return <CalendarCard key={exec.id} data={exec.result as CalendarEventResult} theme={theme} executedAt={exec.executedAt} />;
           } else if (exec.toolName === 'local_pricing') {
             return <PriceCard key={exec.id} data={exec.result as PriceLookupResult} theme={theme} executedAt={exec.executedAt} />;
+          } else if (exec.toolName === 'weather_radar') {
+            return <WeatherRadarDashboardCard key={exec.id} data={exec.result as WeatherRadarResult} theme={theme} executedAt={exec.executedAt} />;
+          } else if (exec.toolName === 'hotel_booking') {
+            return <HotelDashboardCard key={exec.id} data={exec.result as HotelBookingResult} theme={theme} executedAt={exec.executedAt} />;
+          } else if (exec.toolName === 'currency_converter') {
+            return <CurrencyDashboardCard key={exec.id} data={exec.result as CurrencyConverterResult} theme={theme} executedAt={exec.executedAt} />;
+          } else if (exec.toolName === 'smart_checklist') {
+            return <ChecklistDashboardCard key={exec.id} data={exec.result as SmartChecklistResult} theme={theme} executedAt={exec.executedAt} />;
+          } else if (exec.toolName === 'coach_position') {
+            return <CoachDashboardCard key={exec.id} data={exec.result as TrainCoachPositionResult} theme={theme} executedAt={exec.executedAt} />;
           }
           return null;
         })}
+
       </div>
     </div>
   );
@@ -558,5 +570,148 @@ const UserMemoryCard: React.FC<{ data: UserMemoryResult; theme: ThemeMode; execu
     </div>
   );
 };
+
+const WeatherRadarDashboardCard: React.FC<{ data: WeatherRadarResult; theme: ThemeMode; executedAt: string }> = ({ data, theme, executedAt }) => {
+  const isPureBlack = theme === 'dark';
+  return (
+    <div className={`rounded-2xl p-5 space-y-3.5 border transition-all ${
+      isPureBlack ? 'bg-[#0e0e0e] border-neutral-800 text-[#ededed]' : 'bg-[#f8f8fa] border-neutral-200 text-[#111111]'
+    }`}>
+      <div className="flex items-center justify-between pb-2 border-b border-neutral-800/40">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-sky-600 text-white shadow-lg shadow-sky-600/30">
+            <CloudRain className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-base tracking-tight">{data.city} Weather Radar</h4>
+            <p className="text-xs text-neutral-400">{data.condition} • {data.humidity} humidity</p>
+          </div>
+        </div>
+        <span className="text-xl font-black text-sky-400">{data.temperature}</span>
+      </div>
+      <div className={`p-2.5 rounded-xl border text-xs ${isPureBlack ? 'bg-[#141414] border-neutral-800 text-neutral-300' : 'bg-white border-neutral-200 text-neutral-700'}`}>
+        <span className="font-bold text-amber-400">Transit Advisory: </span>{data.advisory}
+      </div>
+      <div className="text-[10px] text-neutral-500 text-right">Executed at {executedAt}</div>
+    </div>
+  );
+};
+
+const HotelDashboardCard: React.FC<{ data: HotelBookingResult; theme: ThemeMode; executedAt: string }> = ({ data, theme, executedAt }) => {
+  const isPureBlack = theme === 'dark';
+  return (
+    <div className={`rounded-2xl p-5 space-y-3.5 border transition-all ${
+      isPureBlack ? 'bg-[#0e0e0e] border-neutral-800 text-[#ededed]' : 'bg-[#f8f8fa] border-neutral-200 text-[#111111]'
+    }`}>
+      <div className="flex items-center justify-between pb-2 border-b border-neutral-800/40">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-600 text-white shadow-lg shadow-amber-600/30">
+            <Building2 className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-base tracking-tight">{data.destination} Hotels</h4>
+            <p className="text-xs text-neutral-400">Check-in: {data.checkIn}</p>
+          </div>
+        </div>
+        <span className="text-xs px-2 py-0.5 rounded font-bold bg-amber-500/20 text-amber-400">Verified</span>
+      </div>
+      <div className="space-y-2">
+        {(data.hotels || []).slice(0, 2).map((h, i) => (
+          <div key={i} className={`p-2.5 rounded-xl border text-xs flex justify-between items-center ${
+            isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-white border-neutral-200'
+          }`}>
+            <div>
+              <div className="font-bold">{h.name}</div>
+              <div className="text-[10px] text-neutral-400">★ {h.rating} • {h.location}</div>
+            </div>
+            <span className="font-extrabold text-amber-400">{h.pricePerNight}</span>
+          </div>
+        ))}
+      </div>
+      <div className="text-[10px] text-neutral-500 text-right">Executed at {executedAt}</div>
+    </div>
+  );
+};
+
+const CurrencyDashboardCard: React.FC<{ data: CurrencyConverterResult; theme: ThemeMode; executedAt: string }> = ({ data, theme, executedAt }) => {
+  const isPureBlack = theme === 'dark';
+  return (
+    <div className={`rounded-2xl p-5 space-y-3.5 border transition-all ${
+      isPureBlack ? 'bg-[#0e0e0e] border-neutral-800 text-[#ededed]' : 'bg-[#f8f8fa] border-neutral-200 text-[#111111]'
+    }`}>
+      <div className="flex items-center justify-between pb-2 border-b border-neutral-800/40">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-600 text-white shadow-lg shadow-emerald-600/30">
+            <DollarSign className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-base tracking-tight">FX Converter</h4>
+            <p className="text-xs text-neutral-400">Rate: 1 {data.fromCurrency} = {data.exchangeRate} {data.toCurrency}</p>
+          </div>
+        </div>
+        <span className="text-xs px-2 py-0.5 rounded font-bold bg-emerald-500/20 text-emerald-400">Real-Time</span>
+      </div>
+      <div className={`p-3 rounded-xl border text-center text-lg font-black text-emerald-400 ${
+        isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-white border-neutral-200'
+      }`}>
+        {data.formattedResult}
+      </div>
+      <div className="text-[10px] text-neutral-500 text-right">Executed at {executedAt}</div>
+    </div>
+  );
+};
+
+const ChecklistDashboardCard: React.FC<{ data: SmartChecklistResult; theme: ThemeMode; executedAt: string }> = ({ data, theme, executedAt }) => {
+  const isPureBlack = theme === 'dark';
+  return (
+    <div className={`rounded-2xl p-5 space-y-3.5 border transition-all ${
+      isPureBlack ? 'bg-[#0e0e0e] border-neutral-800 text-[#ededed]' : 'bg-[#f8f8fa] border-neutral-200 text-[#111111]'
+    }`}>
+      <div className="flex items-center justify-between pb-2 border-b border-neutral-800/40">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-600 text-white shadow-lg shadow-purple-600/30">
+            <CheckSquare className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-base tracking-tight">{data.destination} Checklist</h4>
+            <p className="text-xs text-neutral-400">{data.weatherContext}</p>
+          </div>
+        </div>
+        <span className="text-xs px-2 py-0.5 rounded font-bold bg-purple-500/20 text-purple-400">{data.totalItems} Items</span>
+      </div>
+      <div className={`p-2.5 rounded-xl border text-xs ${isPureBlack ? 'bg-[#141414] border-neutral-800 text-neutral-300' : 'bg-white border-neutral-200 text-neutral-700'}`}>
+        <span className="font-bold text-purple-400">Tip: </span>{data.proactiveTip}
+      </div>
+      <div className="text-[10px] text-neutral-500 text-right">Executed at {executedAt}</div>
+    </div>
+  );
+};
+
+const CoachDashboardCard: React.FC<{ data: TrainCoachPositionResult; theme: ThemeMode; executedAt: string }> = ({ data, theme, executedAt }) => {
+  const isPureBlack = theme === 'dark';
+  return (
+    <div className={`rounded-2xl p-5 space-y-3.5 border transition-all ${
+      isPureBlack ? 'bg-[#0e0e0e] border-neutral-800 text-[#ededed]' : 'bg-[#f8f8fa] border-neutral-200 text-[#111111]'
+    }`}>
+      <div className="flex items-center justify-between pb-2 border-b border-neutral-800/40">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-orange-600 text-white shadow-lg shadow-orange-600/30">
+            <Compass className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-base tracking-tight">{data.trainName}</h4>
+            <p className="text-xs text-neutral-400">{data.platform}</p>
+          </div>
+        </div>
+        <span className="text-xs px-2.5 py-1 rounded-lg font-black bg-amber-500 text-black">Coach {data.passengerCoach}</span>
+      </div>
+      <div className={`p-2.5 rounded-xl border text-xs ${isPureBlack ? 'bg-[#141414] border-neutral-800 text-neutral-300' : 'bg-white border-neutral-200 text-neutral-700'}`}>
+        <span className="font-bold text-amber-400">Walking Guide: </span>{data.walkingTip}
+      </div>
+      <div className="text-[10px] text-neutral-500 text-right">Executed at {executedAt}</div>
+    </div>
+  );
+};
+
 
 
