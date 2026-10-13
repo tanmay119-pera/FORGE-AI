@@ -167,8 +167,32 @@ export const MCP_TOOLS: MCPToolDefinition[] = [
       },
       required: ['city']
     }
+  },
+  {
+    name: 'hotel_booking',
+    description: 'Searches executive, business, or luxury hotel accommodations near arrival stations, airports, or business districts with verified amenities and price per night.',
+    parameters: {
+      type: 'object',
+      properties: {
+        destination: {
+          type: 'string',
+          description: 'City or area name (e.g. "Mumbai Bandra", "Bengaluru Whitefield", "London Heathrow", "New Delhi Connaught Place")'
+        },
+        check_in: {
+          type: 'string',
+          description: 'Check-in date (YYYY-MM-DD or relative like "today", "tomorrow")'
+        },
+        preference: {
+          type: 'string',
+          description: 'Hotel category preference: "luxury", "business", or "budget"',
+          enum: ['luxury', 'business', 'budget']
+        }
+      },
+      required: ['destination']
+    }
   }
 ];
+
 
 
 // Execution simulators that return rich realistic side effects
