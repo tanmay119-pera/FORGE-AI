@@ -187,6 +187,47 @@ export interface UserMemoryResult {
   message: string;
 }
 
+export interface WeatherRadarResult {
+  city: string;
+  temperature: string;
+  condition: string;
+  humidity: string;
+  windSpeed: string;
+  rainChance: string;
+  visibilityKm: number;
+  advisory: string;
+  hourlyForecast: Array<{
+    time: string;
+    temp: string;
+    condition: string;
+  }>;
+}
+
+export interface HotelBookingResult {
+  destination: string;
+  checkIn: string;
+  hotels: Array<{
+    name: string;
+    stars: number;
+    pricePerNight: string;
+    rating: number;
+    amenities: string[];
+    location: string;
+    badge?: string;
+  }>;
+  recommendedHotel: string;
+}
+
+export interface CurrencyConverterResult {
+  amount: number;
+  fromCurrency: string;
+  toCurrency: string;
+  convertedAmount: number;
+  exchangeRate: number;
+  formattedResult: string;
+  feeEstimate: string;
+}
+
 export interface ToolCallExecution {
   id: string;
   toolName: string;
