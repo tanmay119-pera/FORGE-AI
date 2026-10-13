@@ -646,7 +646,11 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
           }
         ]
       };
+      return result;
+    }
+
     case 'weather_radar': {
+
       const city = args.city || 'New Delhi';
       const cityLower = city.toLowerCase();
       const isRainy = cityLower.includes('mumbai') || cityLower.includes('goa') || cityLower.includes('london');
