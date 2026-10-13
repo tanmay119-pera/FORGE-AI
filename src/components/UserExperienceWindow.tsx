@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { VoiceState, ThemeMode, ToolCallExecution } from '../types';
+import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult } from '../types';
 import { ThreeOrb } from './ThreeOrb';
-import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation } from 'lucide-react';
+import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed } from 'lucide-react';
+
 import { UserProfile } from './AuthModal';
 import { ForgeIcon } from './ForgeIcon';
 
@@ -1446,5 +1447,148 @@ const InlineActionCard: React.FC<{
     );
   }
 
+  // 6. Weather Radar Card
+  if (toolName === 'weather_radar') {
+    const data = result as WeatherRadarResult;
+    return (
+      <div className={`p-4 sm:p-5 rounded-2xl space-y-3.5 border transition-all ${
+        isPureBlack
+          ? 'bg-[#121212] border-neutral-800/80 text-white'
+          : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+              <CloudRain className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h5 className="font-extrabold text-sm sm:text-base tracking-tight">{data.city} Weather Radar</h5>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-sky-500/15 text-sky-400 border border-sky-500/30">
+                  Live Radar
+                </span>
+              </div>
+              <p className={`text-xs ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} mt-0.5`}>
+                {data.condition} • Visibility {data.visibilityKm} km
+              </p>
+            </div>
+          </div>
+          <div className="text-right">
+            <span className="text-xl sm:text-2xl font-black text-sky-400">{data.temperature}</span>
+            <div className={`text-[10px] ${isPureBlack ? 'text-neutral-400' : 'text-neutral-500'}`}>Rain: {data.rainChance}</div>
+          </div>
+        </div>
+
+        {/* Advisory Buffer Banner */}
+        {data.advisory && (
+          <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${
+            data.rainChance && parseInt(data.rainChance) > 50
+              ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+              : isPureBlack ? 'bg-[#181818] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+          }`}>
+            <span className="font-bold text-[11px] flex-shrink-0">⚠️ Transit Buffer:</span>
+            <span className="text-[11px] leading-tight">{data.advisory}</span>
+          </div>
+        )}
+
+        {/* Hourly Forecast Strip */}
+        {data.hourlyForecast && data.hourlyForecast.length > 0 && (
+          <div className="grid grid-cols-4 gap-1.5 pt-1">
+            {data.hourlyForecast.map((h, i) => (
+              <div
+                key={i}
+                className={`p-2 rounded-xl border text-center text-xs ${
+                  isPureBlack ? 'bg-[#181818] border-neutral-800/70 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+                }`}
+              >
+                <div className="text-[10px] font-semibold text-neutral-500">{h.time}</div>
+                <div className="font-extrabold text-xs my-0.5 text-sky-400">{h.temp}</div>
+                <div className="text-[9px] truncate text-neutral-400">{h.condition}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // 7. Hotel Booking & Executive Stays Card
+  if (toolName === 'hotel_booking') {
+    const data = result as HotelBookingResult;
+    return (
+      <div className={`p-4 sm:p-5 rounded-2xl space-y-3.5 border transition-all ${
+        isPureBlack
+          ? 'bg-[#121212] border-neutral-800/80 text-white'
+          : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+      }`}>
+        <div className="flex items-center justify-between pb-2 border-b border-neutral-800/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h5 className="font-extrabold text-sm sm:text-base tracking-tight">{data.destination} Accommodations</h5>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                  Verified Stays
+                </span>
+              </div>
+              <p className={`text-xs ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} mt-0.5`}>
+                Check-in: {data.checkIn} • Top Pick: {data.recommendedHotel}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Hotel Cards List */}
+        <div className="space-y-2">
+          {(data.hotels || []).map((h, i) => (
+            <div
+              key={i}
+              className={`p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs transition-all ${
+                i === 0
+                  ? isPureBlack
+                    ? 'bg-amber-500/10 border-amber-500/40 text-white'
+                    : 'bg-amber-50 border-amber-300 text-neutral-900'
+                  : isPureBlack
+                  ? 'bg-[#181818] border-neutral-800 text-neutral-300'
+                  : 'bg-neutral-50 border-neutral-200 text-neutral-800'
+              }`}
+            >
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-extrabold text-xs">{h.name}</span>
+                  {h.badge && (
+                    <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-amber-500 text-black">
+                      {h.badge}
+                    </span>
+                  )}
+                </div>
+                <div className={`text-[11px] ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'}`}>
+                  {h.location} • ★ {h.rating} ({h.stars} Stars)
+                </div>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {h.amenities?.map((am: string, idx: number) => (
+                    <span key={idx} className={`text-[9px] px-1.5 py-0.5 rounded ${
+                      isPureBlack ? 'bg-neutral-800 text-neutral-300' : 'bg-neutral-200 text-neutral-700'
+                    }`}>
+                      {am}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-neutral-800/40">
+                <span className="font-extrabold text-sm text-amber-400">{h.pricePerNight}</span>
+                <span className="text-[9px] text-emerald-400 font-semibold mt-0.5">Free Cancellation</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return null;
+
 };
