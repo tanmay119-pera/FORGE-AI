@@ -679,9 +679,81 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
       return result;
     }
 
+    case 'hotel_booking': {
+      const destination = args.destination || 'Mumbai BKC';
+      const checkIn = args.check_in || 'Today';
+      const isLuxury = args.preference === 'luxury';
+      const isBudget = args.preference === 'budget';
+
+      const hotels = isLuxury ? [
+        {
+          name: 'The Oberoi & Trident Executive Suites',
+          stars: 5,
+          pricePerNight: '₹18,500/night',
+          rating: 4.9,
+          amenities: ['Club Lounge Access', 'Airport Chauffeur', 'High-Speed Fiber', '24/7 Butler'],
+          location: `${destination} Central Hub`,
+          badge: 'Forge Executive Choice'
+        },
+        {
+          name: 'Taj Lands End Luxury Pavilion',
+          stars: 5,
+          pricePerNight: '₹16,200/night',
+          rating: 4.8,
+          amenities: ['Sea View', 'Executive Workspace', 'Spa & Pool', 'Breakfast Included'],
+          location: `${destination} Waterfront`
+        }
+      ] : isBudget ? [
+        {
+          name: 'Ginger Smart Business Hotel',
+          stars: 3,
+          pricePerNight: '₹3,200/night',
+          rating: 4.3,
+          amenities: ['Express Check-in', 'Work Desk', 'Wi-Fi', 'Breakfast'],
+          location: `${destination} Metro Link`,
+          badge: 'Best Value'
+        },
+        {
+          name: 'Bloomrooms @ City Center',
+          stars: 3,
+          pricePerNight: '₹3,800/night',
+          rating: 4.4,
+          amenities: ['Quiet Sleep Pod', 'Cloud Bed', 'Fast Wi-Fi'],
+          location: `${destination} Central`
+        }
+      ] : [
+        {
+          name: 'Radisson Blu Plaza & Executive Suites',
+          stars: 4,
+          pricePerNight: '₹7,800/night',
+          rating: 4.7,
+          amenities: ['Airport Shuttle', 'Business Center', 'Buffet Breakfast', 'Ergonomic Desk'],
+          location: `${destination} Transit Corridor`,
+          badge: 'Most Popular'
+        },
+        {
+          name: 'Courtyard by Marriott Business Bay',
+          stars: 4,
+          pricePerNight: '₹8,900/night',
+          rating: 4.6,
+          amenities: ['Meeting Rooms', 'Gym & Pool', 'Direct Metro Walk', 'Executive Lounge'],
+          location: `${destination} Financial District`
+        }
+      ];
+
+      const result: HotelBookingResult = {
+        destination,
+        checkIn,
+        hotels,
+        recommendedHotel: hotels[0].name
+      };
+      return result;
+    }
+
     default:
       throw new Error(`Tool not found: ${name}`);
   }
 }
+
 
 
