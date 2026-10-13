@@ -335,7 +335,18 @@ export class VoiceAgentOrchestrator {
         speech = `Calendar synced! I've scheduled "${result.title}" at ${result.startTime}.`;
       } else if (toolName === 'local_pricing') {
         speech = `Found ${result.product} on ${result.cheapestVendor} for ${result.lowestPrice}.`;
+      } else if (toolName === 'weather_radar') {
+        speech = `In ${result.city}, it is currently ${result.temperature} and ${result.condition} with ${result.rainChance} chance of rain. ${result.advisory}`;
+      } else if (toolName === 'hotel_booking') {
+        speech = `Found top hotel stays in ${result.destination}. Recommended: ${result.recommendedHotel} starting at ${result.hotels[0]?.pricePerNight}.`;
+      } else if (toolName === 'currency_converter') {
+        speech = `${result.formattedResult}. Real-time conversion rate is ${result.exchangeRate}. ${result.feeEstimate}`;
+      } else if (toolName === 'smart_checklist') {
+        speech = `Created smart packing checklist with ${result.totalItems} items for ${result.destination}. ${result.proactiveTip}`;
+      } else if (toolName === 'coach_position') {
+        speech = `${result.trainName}: Coach ${result.passengerCoach} is at ${result.platform}. ${result.walkingTip}`;
       }
+
 
       await this.speakResponse(speech);
     } catch (err: any) {
