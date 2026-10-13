@@ -646,6 +646,36 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
           }
         ]
       };
+    case 'weather_radar': {
+      const city = args.city || 'New Delhi';
+      const cityLower = city.toLowerCase();
+      const isRainy = cityLower.includes('mumbai') || cityLower.includes('goa') || cityLower.includes('london');
+      const isHot = cityLower.includes('dubai') || cityLower.includes('chennai');
+      const isCold = cityLower.includes('kashmir') || cityLower.includes('shimla') || cityLower.includes('manali');
+
+      const temp = isCold ? '9°C' : isHot ? '36°C' : isRainy ? '27°C' : '28°C';
+      const condition = isCold ? 'Chilly & Clear' : isRainy ? 'Scattered Showers' : isHot ? 'Sunny & Humid' : 'Partly Cloudy';
+      const rainChance = isRainy ? '78%' : isHot ? '5%' : '15%';
+      const advisory = isRainy 
+        ? 'High probability of rain in afternoon. Allow +20 mins buffer for airport/station cab transit.'
+        : 'Clear road visibility and normal transit speeds expected across the city.';
+
+      const result: WeatherRadarResult = {
+        city,
+        temperature: temp,
+        condition,
+        humidity: isRainy ? '82%' : '54%',
+        windSpeed: '14 km/h NW',
+        rainChance,
+        visibilityKm: isRainy ? 5.2 : 9.8,
+        advisory,
+        hourlyForecast: [
+          { time: 'Now', temp, condition },
+          { time: '+2h', temp: isCold ? '11°C' : '29°C', condition },
+          { time: '+4h', temp: isCold ? '8°C' : '26°C', condition: isRainy ? 'Overcast' : 'Clear' },
+          { time: '+6h', temp: isCold ? '6°C' : '24°C', condition: 'Clear Sky' }
+        ]
+      };
       return result;
     }
 
@@ -653,4 +683,5 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
       throw new Error(`Tool not found: ${name}`);
   }
 }
+
 
