@@ -212,8 +212,50 @@ export const MCP_TOOLS: MCPToolDefinition[] = [
       },
       required: ['amount', 'from_currency', 'to_currency']
     }
+  },
+  {
+    name: 'smart_checklist',
+    description: 'Generates a contextual, intelligent packing and document checklist dynamically customized for destination climate, duration, and transit type.',
+    parameters: {
+      type: 'object',
+      properties: {
+        destination: {
+          type: 'string',
+          description: 'Destination city or region (e.g. "Mumbai", "Kashmir", "Dubai", "Bengaluru")'
+        },
+        trip_type: {
+          type: 'string',
+          description: 'Purpose or style of trip: "business", "leisure", or "weekend"',
+          enum: ['business', 'leisure', 'weekend']
+        },
+        duration_days: {
+          type: 'number',
+          description: 'Trip duration in days, default 3'
+        }
+      },
+      required: ['destination']
+    }
+  },
+  {
+    name: 'coach_position',
+    description: 'Looks up exact train rake layout, engine-to-guard coach ordering, platform placement, and passenger coach location for railway departures.',
+    parameters: {
+      type: 'object',
+      properties: {
+        train_query: {
+          type: 'string',
+          description: 'Train number or name (e.g. "12004", "Vande Bharat Express", "Shatabdi")'
+        },
+        coach_code: {
+          type: 'string',
+          description: 'Coach code if available (e.g. "C4", "B2", "E1", "A1")'
+        }
+      },
+      required: ['train_query']
+    }
   }
 ];
+
 
 
 
