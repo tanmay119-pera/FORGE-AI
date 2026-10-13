@@ -228,6 +228,35 @@ export interface CurrencyConverterResult {
   feeEstimate: string;
 }
 
+export interface SmartChecklistResult {
+  tripType: string;
+  destination: string;
+  weatherContext: string;
+  totalItems: number;
+  categories: Array<{
+    categoryName: string;
+    items: Array<{
+      item: string;
+      essential: boolean;
+      packed: boolean;
+    }>;
+  }>;
+  proactiveTip: string;
+}
+
+export interface TrainCoachPositionResult {
+  trainNumber: string;
+  trainName: string;
+  platform: string;
+  coaches: Array<{
+    code: string;
+    classType: string;
+    positionFromEngine: number;
+  }>;
+  passengerCoach?: string;
+  walkingTip: string;
+}
+
 export interface ToolCallExecution {
   id: string;
   toolName: string;
