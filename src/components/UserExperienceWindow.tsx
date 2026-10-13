@@ -1589,6 +1589,184 @@ const InlineActionCard: React.FC<{
     );
   }
 
+  // 8. Currency Converter Card
+  if (toolName === 'currency_converter') {
+    const data = result as CurrencyConverterResult;
+    return (
+      <div className={`p-4 sm:p-5 rounded-2xl space-y-3.5 border transition-all ${
+        isPureBlack
+          ? 'bg-[#121212] border-neutral-800/80 text-white'
+          : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+              <DollarSign className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h5 className="font-extrabold text-sm sm:text-base tracking-tight">Real-Time FX Converter</h5>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  Zero Markup
+                </span>
+              </div>
+              <p className={`text-xs ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} mt-0.5`}>
+                Rate: 1 {data.fromCurrency} = {data.exchangeRate} {data.toCurrency}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className={`p-3.5 rounded-xl border text-center ${
+          isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'
+        }`}>
+          <div className="text-xl sm:text-2xl font-black text-emerald-400 tracking-tight">
+            {data.formattedResult}
+          </div>
+          <p className={`text-[11px] mt-1 ${isPureBlack ? 'text-neutral-400' : 'text-neutral-500'}`}>
+            {data.feeEstimate}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // 9. Smart Checklist Card
+  if (toolName === 'smart_checklist') {
+    const data = result as SmartChecklistResult;
+    return (
+      <div className={`p-4 sm:p-5 rounded-2xl space-y-3.5 border transition-all ${
+        isPureBlack
+          ? 'bg-[#121212] border-neutral-800/80 text-white'
+          : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+      }`}>
+        <div className="flex items-center justify-between pb-2 border-b border-neutral-800/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+              <CheckSquare className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h5 className="font-extrabold text-sm sm:text-base tracking-tight">{data.destination} Packing Checklist</h5>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                  {data.tripType?.toUpperCase() || 'TRIP'}
+                </span>
+              </div>
+              <p className={`text-xs ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} mt-0.5`}>
+                {data.weatherContext} • {data.totalItems} Items
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tip */}
+        {data.proactiveTip && (
+          <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${
+            isPureBlack ? 'bg-[#181818] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+          }`}>
+            <span className="font-bold text-purple-400 text-[11px] flex-shrink-0">💡 Proactive Tip:</span>
+            <span className="text-[11px] leading-tight">{data.proactiveTip}</span>
+          </div>
+        )}
+
+        {/* Categories */}
+        <div className="space-y-2.5">
+          {(data.categories || []).map((cat, idx) => (
+            <div key={idx} className={`p-3 rounded-xl border ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+              <div className="text-[11px] font-bold uppercase tracking-wider text-purple-400 mb-2">
+                {cat.categoryName}
+              </div>
+              <div className="space-y-1.5">
+                {cat.items.map((it, itemIdx) => (
+                  <div key={itemIdx} className="flex items-center justify-between text-xs">
+                    <span className={`flex items-center gap-2 ${it.packed ? 'line-through text-neutral-500' : isPureBlack ? 'text-white' : 'text-neutral-900'}`}>
+                      <span className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] ${
+                        it.packed ? 'bg-emerald-500 text-black font-bold' : 'border border-neutral-600'
+                      }`}>
+                        {it.packed ? '✓' : ''}
+                      </span>
+                      {it.item}
+                    </span>
+                    {it.essential && (
+                      <span className="text-[9px] px-1.5 py-0.2 rounded font-bold bg-rose-500/20 text-rose-400">
+                        Essential
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // 10. Coach Position Card
+  if (toolName === 'coach_position') {
+    const data = result as TrainCoachPositionResult;
+    return (
+      <div className={`p-4 sm:p-5 rounded-2xl space-y-3.5 border transition-all ${
+        isPureBlack
+          ? 'bg-[#121212] border-neutral-800/80 text-white'
+          : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+      }`}>
+        <div className="flex items-center justify-between pb-2 border-b border-neutral-800/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+              <Compass className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h5 className="font-extrabold text-sm sm:text-base tracking-tight">{data.trainName} Platform Guide</h5>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-orange-500/15 text-orange-400 border border-orange-500/30">
+                  {data.platform}
+                </span>
+              </div>
+              <p className={`text-xs ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} mt-0.5`}>
+                Coach: {data.passengerCoach} • Rake Layout
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Coach Rake Diagram */}
+        <div className="overflow-x-auto py-2">
+          <div className="flex items-center gap-1.5 min-w-max">
+            {(data.coaches || []).map((c, i) => {
+              const isUserCoach = c.code === data.passengerCoach;
+              return (
+                <div
+                  key={i}
+                  className={`px-2.5 py-2 rounded-lg border text-center transition-all ${
+                    isUserCoach
+                      ? 'bg-amber-500 text-black font-black border-amber-400 scale-105 shadow-md shadow-amber-500/40 ring-2 ring-amber-400'
+                      : isPureBlack
+                      ? 'bg-[#181818] border-neutral-800 text-neutral-300'
+                      : 'bg-neutral-100 border-neutral-200 text-neutral-700'
+                  }`}
+                >
+                  <div className="text-[9px] uppercase opacity-70">
+                    {c.code === 'ENG' ? 'Loco' : c.code === 'EOG' ? 'Power' : `C-${i}`}
+                  </div>
+                  <div className="text-xs font-bold">{c.code}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${
+          isPureBlack ? 'bg-[#181818] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+        }`}>
+          <span className="font-bold text-amber-400 text-[11px] flex-shrink-0">🚶 Boarding Tip:</span>
+          <span className="text-[11px] leading-tight">{data.walkingTip}</span>
+        </div>
+      </div>
+    );
+  }
+
   return null;
+
 
 };
