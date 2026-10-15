@@ -309,7 +309,15 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
           workAddress: 'Cyber Hub Building 10, Gurugram',
           preferredRideService: 'Premier',
           frequentDestinations: ['Indira Gandhi Airport Terminal 3', 'Central Railway Station Platform 4'],
-          preferences: { quietRide: true, autoConfirmThreshold: '₹800' }
+          preferences: {
+            quietRide: true,
+            autoConfirmThreshold: '₹800',
+            diurnalPreferences: {
+              morningBufferMins: 15,
+              eveningPickup: 'Cyber Hub Gate 2 Chauffeur Zone',
+              highTrafficAlternative: 'Delhi Metro Yellow Line Express'
+            }
+          }
         };
       }
 
@@ -317,7 +325,15 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
         if (key === 'homeAddress') savedUser.homeAddress = value;
         else if (key === 'workAddress') savedUser.workAddress = value;
         else if (key === 'preferredRideService') savedUser.preferredRideService = value;
-        else if (key === 'frequentDestinations') {
+        else if (key === 'morningBufferMins') {
+          if (!savedUser.preferences) savedUser.preferences = {};
+          if (!savedUser.preferences.diurnalPreferences) savedUser.preferences.diurnalPreferences = {};
+          savedUser.preferences.diurnalPreferences.morningBufferMins = Number(value) || 15;
+        } else if (key === 'eveningPickup') {
+          if (!savedUser.preferences) savedUser.preferences = {};
+          if (!savedUser.preferences.diurnalPreferences) savedUser.preferences.diurnalPreferences = {};
+          savedUser.preferences.diurnalPreferences.eveningPickup = value;
+        } else if (key === 'frequentDestinations') {
           if (!savedUser.frequentDestinations) savedUser.frequentDestinations = [];
           if (!savedUser.frequentDestinations.includes(value)) savedUser.frequentDestinations.push(value);
         } else if (key === 'quietRide') {
