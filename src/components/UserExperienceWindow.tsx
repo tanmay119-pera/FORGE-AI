@@ -1426,6 +1426,31 @@ const InlineActionCard: React.FC<{
           </div>
         </div>
 
+        {/* Diurnal Commute Intelligence */}
+        {profile.preferences?.diurnalPreferences && (
+          <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${
+            isPureBlack ? 'bg-[#181818] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+          }`}>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-violet-500 block">
+              🕒 Diurnal Commute Intelligence
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+              <div>
+                <span className="text-neutral-500">Morning Buffer:</span>{' '}
+                <strong className={isPureBlack ? 'text-white' : 'text-neutral-900'}>
+                  {profile.preferences.diurnalPreferences.morningBufferMins || 15} mins
+                </strong>
+              </div>
+              <div>
+                <span className="text-neutral-500">Evening Pickup:</span>{' '}
+                <strong className={isPureBlack ? 'text-white' : 'text-neutral-900'}>
+                  {profile.preferences.diurnalPreferences.eveningPickup || 'Cyber Hub Gate 2'}
+                </strong>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Preferences & Quick Actions */}
         <div className={`p-2.5 rounded-xl border text-xs flex items-center justify-between ${
           isPureBlack ? 'bg-[#181818] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'

@@ -560,6 +560,35 @@ const UserMemoryCard: React.FC<{ data: UserMemoryResult; theme: ThemeMode; execu
         </div>
       </div>
 
+      {profile.preferences?.diurnalPreferences && (
+        <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${
+          isPureBlack ? 'bg-[#141414] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
+        }`}>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-violet-400">
+              🕒 Diurnal Commute Intelligence
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-violet-500/10 text-violet-400">
+              Active Context
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-[11px]">
+            <div>
+              <span className="text-neutral-500">Morning Departure Buffer:</span>{' '}
+              <strong className={isPureBlack ? 'text-white' : 'text-neutral-900'}>
+                {profile.preferences.diurnalPreferences.morningBufferMins || 15} mins
+              </strong>
+            </div>
+            <div>
+              <span className="text-neutral-500">Evening Pickup Zone:</span>{' '}
+              <strong className={isPureBlack ? 'text-white' : 'text-neutral-900'}>
+                {profile.preferences.diurnalPreferences.eveningPickup || 'Cyber Hub Gate 2'}
+              </strong>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={`p-3 rounded-xl border text-xs flex items-center justify-between ${
         isPureBlack ? 'bg-[#141414] border-neutral-800 text-neutral-300' : 'bg-neutral-50 border-neutral-200 text-neutral-700'
       }`}>
