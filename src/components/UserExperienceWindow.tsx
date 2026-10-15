@@ -1,18 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult } from '../types';
+import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult } from '../types';
 import { ThreeOrb } from './ThreeOrb';
-import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed } from 'lucide-react';
-
+import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, VolumeX, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed, Copy, Keyboard, Command } from 'lucide-react';
 import { UserProfile } from './AuthModal';
 import { ForgeIcon } from './ForgeIcon';
+import { audioCueService } from '../services/audioCueService';
+import { geminiService } from '../services/geminiService';
 
 interface Message {
   id: string;
   sender: 'user' | 'forge';
   text: string;
   time: string;
+  model?: 'p1' | 'p2';
   execution?: ToolCallExecution;
+  followUpSuggestions?: string[];
 }
+
 
 interface UserExperienceWindowProps {
   voiceState: VoiceState;
@@ -77,6 +81,113 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const [isSoundOn, setIsSoundOn] = useState(() => audioCueService.isSoundEnabled());
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+
+  // Global Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (showShortcutsModal) {
+          setShowShortcutsModal(false);
+          return;
+        }
+        if (isListening) onStopListening();
+        if (isSpeaking) {
+          if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+          }
+        }
+        return;
+      }
+
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (isListening) onStopListening();
+        else onStartListening();
+        return;
+      }
+
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault();
+        setShowShortcutsModal(prev => !prev);
+        return;
+      }
+
+      const activeTag = document.activeElement?.tagName?.toLowerCase();
+      if (e.code === 'Space' && activeTag !== 'input' && activeTag !== 'textarea') {
+        e.preventDefault();
+        if (isListening) onStopListening();
+        else onStartListening();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isListening, isSpeaking, showShortcutsModal, onStartListening, onStopListening]);
+
+  const renderShortcutsModal = () => {
+    if (!showShortcutsModal) return null;
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
+        <div className={`w-full max-w-md rounded-3xl p-6 border shadow-2xl space-y-4 animate-in zoom-in-95 duration-200 ${
+          isPureBlack ? 'bg-[#121212] border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-900'
+        }`}>
+          <div className="flex items-center justify-between pb-3 border-b border-neutral-800/40">
+            <div className="flex items-center gap-2">
+              <Keyboard className="w-5 h-5 text-violet-500" />
+              <h3 className="font-extrabold text-base tracking-tight">Keyboard Shortcuts</h3>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowShortcutsModal(false)}
+              className="text-xs px-2 py-1 rounded-lg border border-neutral-700/60 hover:bg-neutral-800 text-neutral-400 hover:text-white"
+            >
+              Esc
+            </button>
+          </div>
+
+          <div className="space-y-2.5 text-xs">
+            <div className={`p-2.5 rounded-xl border flex items-center justify-between ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+              <span className="font-medium">Toggle Voice Assistant</span>
+              <div className="flex items-center gap-1">
+                <kbd className="px-2 py-0.5 rounded font-mono font-bold bg-neutral-800 border border-neutral-700 text-violet-400">Space</kbd>
+                <span className="text-neutral-500">or</span>
+                <kbd className="px-2 py-0.5 rounded font-mono font-bold bg-neutral-800 border border-neutral-700 text-violet-400">⌘ K</kbd>
+              </div>
+            </div>
+
+            <div className={`p-2.5 rounded-xl border flex items-center justify-between ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+              <span className="font-medium">Stop Speaking / Cancel Listening</span>
+              <kbd className="px-2 py-0.5 rounded font-mono font-bold bg-neutral-800 border border-neutral-700 text-neutral-300">Esc</kbd>
+            </div>
+
+            <div className={`p-2.5 rounded-xl border flex items-center justify-between ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+              <span className="font-medium">Send Message</span>
+              <kbd className="px-2 py-0.5 rounded font-mono font-bold bg-neutral-800 border border-neutral-700 text-neutral-300">Enter</kbd>
+            </div>
+
+            <div className={`p-2.5 rounded-xl border flex items-center justify-between ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+              <span className="font-medium">Toggle Shortcuts Cheat Sheet</span>
+              <kbd className="px-2 py-0.5 rounded font-mono font-bold bg-neutral-800 border border-neutral-700 text-violet-400">⌘ /</kbd>
+            </div>
+          </div>
+
+          <div className="pt-2 text-center">
+            <button
+              type="button"
+              onClick={() => setShowShortcutsModal(false)}
+              className="w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs transition-colors shadow-md shadow-violet-600/30"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
 
   const renderModelDropdown = (onClose: () => void) => (
     <div className={`absolute left-0 bottom-full mb-2.5 w-72 sm:w-80 rounded-2xl border shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150 text-left ${
@@ -317,14 +428,44 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
         
         {/* 1. Header with Feature Badge */}
         <div className="text-center space-y-2.5 pt-2 pb-1 select-none flex flex-col items-center">
-          <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
-            isPureBlack
-              ? 'bg-violet-600/10 text-violet-400 border-violet-500/20'
-              : 'bg-violet-50 text-violet-700 border-violet-200 shadow-sm'
-          }`}>
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Autonomous AI • Sub-25ms Voice • Model Context Protocol</span>
+          <div className="flex items-center gap-2">
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
+              isPureBlack
+                ? 'bg-violet-600/10 text-violet-400 border-violet-500/20'
+                : 'bg-violet-50 text-violet-700 border-violet-200 shadow-sm'
+            }`}>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Autonomous AI • Sub-25ms Voice • Model Context Protocol</span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const next = audioCueService.toggleSound();
+                setIsSoundOn(next);
+              }}
+              className={`p-1.5 rounded-full border transition-all ${
+                isSoundOn
+                  ? isPureBlack ? 'bg-violet-600/20 text-violet-400 border-violet-500/30' : 'bg-violet-50 text-violet-600 border-violet-200'
+                  : isPureBlack ? 'bg-neutral-900 text-neutral-500 border-neutral-800' : 'bg-neutral-100 text-neutral-400 border-neutral-200'
+              }`}
+              title={isSoundOn ? 'Sound FX Enabled (Click to Mute)' : 'Sound FX Muted (Click to Enable)'}
+            >
+              {isSoundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowShortcutsModal(true)}
+              className={`hidden sm:flex p-1.5 rounded-full border transition-all ${
+                isPureBlack ? 'bg-neutral-900 text-neutral-400 hover:text-white border-neutral-800' : 'bg-neutral-100 text-neutral-600 hover:text-neutral-900 border-neutral-200'
+              }`}
+              title="Keyboard Shortcuts (⌘ /)"
+            >
+              <Keyboard className="w-3.5 h-3.5" />
+            </button>
           </div>
+
 
           <h1 className={`text-2xl sm:text-4xl font-extrabold tracking-tight ${
             isPureBlack ? 'text-white' : 'text-neutral-900'
@@ -857,6 +998,8 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
             </a>
           </div>
 
+          {/* Shortcuts Cheat Sheet Modal */}
+          {renderShortcutsModal()}
         </div>
 
       </div>
@@ -890,20 +1033,52 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
           </div>
         </div>
 
-        {/* New Chat Button */}
-        <button
-          onClick={handleResetChat}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all shadow-sm ${
-            isPureBlack
-              ? 'border-neutral-700/80 bg-[#161616] hover:bg-[#222222] text-neutral-300 hover:text-white'
-              : 'border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-900'
-          }`}
-          title="Start fresh conversation"
-        >
-          <RotateCcw className="w-3.5 h-3.5 text-violet-500" />
-          <span>New Chat</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Sound FX Toggle */}
+          <button
+            type="button"
+            onClick={() => {
+              const next = audioCueService.toggleSound();
+              setIsSoundOn(next);
+            }}
+            className={`p-1.5 sm:p-2 rounded-xl border transition-all ${
+              isSoundOn 
+                ? isPureBlack ? 'bg-violet-600/15 text-violet-400 border-violet-500/30' : 'bg-violet-50 text-violet-600 border-violet-200'
+                : isPureBlack ? 'bg-neutral-900 text-neutral-500 border-neutral-800' : 'bg-neutral-100 text-neutral-400 border-neutral-200'
+            }`}
+            title={isSoundOn ? 'Sound FX Enabled (Click to Mute)' : 'Sound FX Muted (Click to Enable)'}
+          >
+            {isSoundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+          </button>
+
+          {/* Keyboard Shortcuts Button */}
+          <button
+            type="button"
+            onClick={() => setShowShortcutsModal(true)}
+            className={`hidden sm:flex p-2 rounded-xl border transition-all ${
+              isPureBlack ? 'bg-[#161616] text-neutral-400 hover:text-white border-neutral-800' : 'bg-white text-neutral-600 hover:text-neutral-900 border-neutral-200 shadow-sm'
+            }`}
+            title="Keyboard Shortcuts (⌘ /)"
+          >
+            <Keyboard className="w-3.5 h-3.5" />
+          </button>
+
+          {/* New Chat Button */}
+          <button
+            onClick={handleResetChat}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all shadow-sm ${
+              isPureBlack
+                ? 'border-neutral-700/80 bg-[#161616] hover:bg-[#222222] text-neutral-300 hover:text-white'
+                : 'border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-700 hover:text-neutral-900'
+            }`}
+            title="Start fresh conversation"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-violet-500" />
+            <span>New Chat</span>
+          </button>
+        </div>
       </div>
+
 
       {/* B. Proper Chat Box Message Stream */}
       <div className={`flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-thin ${
@@ -1049,6 +1224,8 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
         </form>
       </div>
 
+      {/* Shortcuts Cheat Sheet Modal */}
+      {renderShortcutsModal()}
     </div>
   );
 };
