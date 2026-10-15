@@ -1105,7 +1105,11 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
 
 
       {/* B. Proper Chat Box Message Stream */}
-      <div className={`flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-thin ${
+      <div 
+        role="log" 
+        aria-label="Conversation message stream" 
+        aria-live="polite"
+        className={`flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-thin ${
         isPureBlack ? 'bg-[#000000]' : 'bg-[#fafafa]'
       }`}>
         {messages.map((msg) => {
@@ -1238,6 +1242,11 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
             </div>
           </div>
         )}
+
+        {/* Screen Reader Live Announcements */}
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {isListening ? 'Voice assistant is listening' : isThinking ? 'Forge is processing query' : isSpeaking ? assistantSpeech : ''}
+        </div>
 
         <div ref={messagesEndRef} />
       </div>
