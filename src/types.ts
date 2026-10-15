@@ -176,6 +176,11 @@ export interface UserProfile {
     temperature?: string;
     quietRide?: boolean;
     autoConfirmThreshold?: string;
+    diurnalPreferences?: {
+      morningBufferMins?: number;
+      eveningPickup?: string;
+      highTrafficAlternative?: string;
+    };
   };
 }
 
