@@ -906,10 +906,82 @@ export async function executeMCPTool(name: string, args: Record<string, any>): P
       return result;
     }
 
+    case 'smart_concierge': {
+      const now = new Date();
+      const hours = now.getHours();
+      const isMorning = hours >= 5 && hours < 12;
+      const isAfternoon = hours >= 12 && hours < 17;
+      const isEvening = hours >= 17 && hours < 22;
+      const dayPhase: 'morning' | 'afternoon' | 'evening' | 'night' = 
+        isMorning ? 'morning' : isAfternoon ? 'afternoon' : isEvening ? 'evening' : 'night';
+
+      let savedUser: any = null;
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem('forge_user');
+        if (raw) {
+          try { savedUser = JSON.parse(raw); } catch (e) {}
+        }
+      }
+      const userName = savedUser?.name || 'Tanmay (Adesh Srivastava)';
+      const firstName = userName.split(' ')[0];
+      const home = savedUser?.homeAddress || 'Connaught Place, New Delhi';
+      const work = savedUser?.workAddress || 'Cyber Hub Building 10, Gurugram';
+      const fleet = savedUser?.preferredRideService || 'Premier';
+
+      const isCommuteToWork = isMorning;
+      const pickup = isCommuteToWork ? home : work;
+      const destination = isCommuteToWork ? work : home;
+
+      const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const result: SmartConciergeResult = {
+        greeting: `Good ${dayPhase}, ${firstName}!`,
+        currentTime: timeString,
+        dayPhase,
+        weatherHighlight: {
+          city: 'New Delhi / NCR',
+          temp: '26°C',
+          condition: 'Clear Sky & Temperate',
+          rainChance: '5%',
+          transitNote: 'Clear conditions across highway corridors. No weather delays expected.'
+        },
+        commuteRecommendation: {
+          suggestedRoute: isCommuteToWork ? 'Delhi-Gurgaon Expressway via NH48' : 'MG Road to Connaught Place',
+          pickup,
+          destination,
+          preferredFleet: fleet,
+          estimatedFare: '₹420',
+          trafficStatus: 'Flowing smoothly (ETA ~26 mins)'
+        },
+        priorityEvents: [
+          {
+            title: isCommuteToWork ? 'Morning AI Systems Review' : 'Executive Strategy & Travel Sync',
+            time: isCommuteToWork ? '10:30 AM' : '06:00 PM',
+            category: 'meeting',
+            status: 'Confirmed'
+          },
+          {
+            title: 'Shatabdi Express Booking Gate Review',
+            time: '07:15 PM',
+            category: 'travel',
+            status: 'Platform 4 Confirmed'
+          }
+        ],
+        suggestedActionPills: [
+          isCommuteToWork ? `Take me to work in an Uber ${fleet}` : `Take me home in an Uber ${fleet}`,
+          'Check Vande Bharat live train status',
+          'Check weather radar in Mumbai',
+          'Create packing checklist for weekend'
+        ]
+      };
+      return result;
+    }
+
     default:
       throw new Error(`Tool not found: ${name}`);
   }
 }
+
 
 
 
