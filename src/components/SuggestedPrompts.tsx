@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeMode } from '../types';
-import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User, CloudRain, Building2, DollarSign, CheckSquare, Compass, Sun } from 'lucide-react';
+import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User, CloudRain, Building2, DollarSign, CheckSquare, Compass, Sun, Moon } from 'lucide-react';
 
 interface SuggestedPromptsProps {
   onSelectPrompt: (prompt: string) => void;
@@ -15,6 +15,16 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onSelectProm
       title: 'Concierge Briefing',
       text: 'Give me my executive concierge briefing for today',
       icon: Sun
+    },
+    {
+      title: 'Morning Commute',
+      text: 'Plan my morning commute to Cyber Hub with traffic buffers',
+      icon: Sun
+    },
+    {
+      title: 'Evening Return',
+      text: 'Book an Uber Premier to take me home from office',
+      icon: Moon
     },
     {
       title: 'The Basics',
