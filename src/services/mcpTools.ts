@@ -1,6 +1,7 @@
-import { MCPToolDefinition, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, ForgeBasicsResult, UserMemoryResult, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult } from '../types';
+import { MCPToolDefinition, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, ForgeBasicsResult, UserMemoryResult, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult } from '../types';
 
 export const MCP_TOOLS: MCPToolDefinition[] = [
+
 
   {
     name: 'user_memory',
@@ -253,8 +254,27 @@ export const MCP_TOOLS: MCPToolDefinition[] = [
       },
       required: ['train_query']
     }
+  },
+  {
+    name: 'smart_concierge',
+    description: 'Generates an executive daily briefing, multi-modal commute recommendations, live weather highlights, priority agenda sync, and proactive follow-up action pills.',
+    parameters: {
+      type: 'object',
+      properties: {
+        focus: {
+          type: 'string',
+          description: 'Briefing focus: "daily_overview", "commute_ready", "weather_transit", or "evening_wrap"',
+          enum: ['daily_overview', 'commute_ready', 'weather_transit', 'evening_wrap']
+        },
+        location: {
+          type: 'string',
+          description: 'Current city or office location (e.g. "New Delhi", "Gurugram", "Mumbai")'
+        }
+      }
+    }
   }
 ];
+
 
 
 
