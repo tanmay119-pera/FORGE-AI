@@ -257,13 +257,52 @@ export interface TrainCoachPositionResult {
   walkingTip: string;
 }
 
+export interface SmartConciergeResult {
+  greeting: string;
+  currentTime: string;
+  dayPhase: 'morning' | 'afternoon' | 'evening' | 'night';
+  weatherHighlight: {
+    city: string;
+    temp: string;
+    condition: string;
+    rainChance: string;
+    transitNote: string;
+  };
+  commuteRecommendation: {
+    suggestedRoute: string;
+    pickup: string;
+    destination: string;
+    preferredFleet: string;
+    estimatedFare: string;
+    trafficStatus: string;
+  };
+  priorityEvents: Array<{
+    title: string;
+    time: string;
+    category: string;
+    status: string;
+  }>;
+  suggestedActionPills: string[];
+}
+
+export interface ConversationMessage {
+  id: string;
+  sender: 'user' | 'forge';
+  text: string;
+  time: string;
+  model?: 'p1' | 'p2';
+  execution?: ToolCallExecution;
+  followUpSuggestions?: string[];
+}
+
 export interface ToolCallExecution {
   id: string;
   toolName: string;
   args: any;
   status: 'pending' | 'success' | 'failed';
-  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | UserMemoryResult | WeatherRadarResult | HotelBookingResult | CurrencyConverterResult | SmartChecklistResult | TrainCoachPositionResult | any;
+  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | UserMemoryResult | WeatherRadarResult | HotelBookingResult | CurrencyConverterResult | SmartChecklistResult | TrainCoachPositionResult | SmartConciergeResult | any;
   executedAt: string;
 }
+
 
 
