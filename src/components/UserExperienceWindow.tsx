@@ -84,6 +84,26 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
 
   const [isSoundOn, setIsSoundOn] = useState(() => audioCueService.isSoundEnabled());
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+
+  const handleCopyMessage = (id: string, text: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      setCopiedMessageId(id);
+      audioCueService.playActionSuccess();
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    }
+  };
+
+  const handleReplaySpeech = (text: string) => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    }
+  };
 
   // Global Keyboard Shortcuts
   useEffect(() => {
@@ -355,6 +375,7 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
       const latestExecution = executions[0];
       setMessages(prev => {
         if (prev[prev.length - 1]?.text === assistantSpeech) return prev;
+        const followUps = geminiService.getFollowUpSuggestions(assistantSpeech, latestExecution?.toolName);
         return [
           ...prev,
           {
@@ -362,12 +383,14 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
             sender: 'forge',
             text: assistantSpeech,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            execution: latestExecution
+            model: selectedModel,
+            execution: latestExecution,
+            followUpSuggestions: followUps
           }
         ];
       });
     }
-  }, [assistantSpeech, executions]);
+  }, [assistantSpeech, executions, selectedModel]);
 
   const handleSend = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -1092,7 +1115,7 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
               className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} space-y-1.5 animate-in fade-in duration-200`}
             >
               <div
-                className={`max-w-[85%] sm:max-w-[78%] px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                className={`max-w-[85%] sm:max-w-[78%] px-4 py-3 rounded-2xl text-xs sm:text-sm leading-relaxed relative group ${
                   isUser
                     ? 'bg-violet-600 text-white rounded-br-sm shadow-md'
                     : isPureBlack
@@ -1100,12 +1123,73 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
                     : 'bg-white text-neutral-900 rounded-bl-sm border border-neutral-200/90 shadow-sm'
                 }`}
               >
+                {/* Assistant Model Engine Badge */}
+                {!isUser && (
+                  <div className="flex items-center justify-between gap-2 pb-1.5 mb-1.5 border-b border-neutral-800/40 select-none">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-3.5 h-3.5 rounded-full bg-violet-600/30 border border-violet-500/40 flex items-center justify-center text-violet-400">
+                        <Sparkles className="w-2.5 h-2.5" />
+                      </div>
+                      <span className="text-[10px] font-bold tracking-tight text-violet-400">
+                        {msg.model === 'p2' ? 'Forge P2 (Performance)' : 'Forge P1 (Efficiency)'}
+                      </span>
+                    </div>
+                    <span className={`text-[10px] font-medium ${isPureBlack ? 'text-neutral-500' : 'text-neutral-400'}`}>
+                      {msg.time}
+                    </span>
+                  </div>
+                )}
+
                 <p className="font-medium whitespace-pre-wrap">{msg.text}</p>
-                <span className={`text-[10px] mt-1.5 block font-medium ${
-                  isUser ? 'text-violet-200 text-right' : isPureBlack ? 'text-neutral-400 text-left' : 'text-neutral-500 text-left'
-                }`}>
-                  {msg.time}
-                </span>
+
+                {isUser ? (
+                  <span className="text-[10px] mt-1.5 block font-medium text-violet-200 text-right select-none">
+                    {msg.time}
+                  </span>
+                ) : (
+                  <div className="flex items-center justify-end gap-1 pt-1.5 mt-1 border-t border-neutral-800/30">
+                    {/* Copy Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleCopyMessage(msg.id, msg.text)}
+                      className={`px-1.5 py-0.5 rounded-md transition-colors text-[10px] flex items-center gap-1 ${
+                        copiedMessageId === msg.id
+                          ? 'text-emerald-400 bg-emerald-500/10'
+                          : isPureBlack
+                          ? 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800'
+                          : 'text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100'
+                      }`}
+                      title="Copy response text"
+                    >
+                      {copiedMessageId === msg.id ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span className="text-[9px] font-bold text-emerald-400">Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span className="text-[9px]">Copy</span>
+                        </>
+                      )}
+                    </button>
+
+                    {/* Speech Replay Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleReplaySpeech(msg.text)}
+                      className={`px-1.5 py-0.5 rounded-md transition-colors text-[10px] flex items-center gap-1 ${
+                        isPureBlack
+                          ? 'text-neutral-500 hover:text-violet-400 hover:bg-neutral-800'
+                          : 'text-neutral-400 hover:text-violet-600 hover:bg-neutral-100'
+                      }`}
+                      title="Replay Voice Speech"
+                    >
+                      <Volume2 className="w-3 h-3" />
+                      <span className="text-[9px]">Speak</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Inline Action Widget (Theme-aware with command dispatch) */}
