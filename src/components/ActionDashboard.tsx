@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ToolCallExecution, ThemeMode, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, CabRideOption, ForgeBasicsResult, UserMemoryResult, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult } from '../types';
-import { Car, Train, Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, ShieldCheck, ExternalLink, Navigation, Users, ArrowRight, Plane, Sparkles, User, CloudRain, Building2, DollarSign, CheckSquare, Compass } from 'lucide-react';
+import { ToolCallExecution, ThemeMode, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, CabRideOption, ForgeBasicsResult, UserMemoryResult, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult } from '../types';
+import { Car, Train, Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, ShieldCheck, ExternalLink, Navigation, Users, ArrowRight, Plane, Sparkles, User, CloudRain, Building2, DollarSign, CheckSquare, Compass, Sun, Moon } from 'lucide-react';
 
 import { Avatar } from './Avatar';
 
@@ -39,7 +39,9 @@ export const ActionDashboard: React.FC<ActionDashboardProps> = ({ executions, th
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {executions.map((exec) => {
-          if (exec.toolName === 'user_memory') {
+          if (exec.toolName === 'smart_concierge') {
+            return <ConciergeDashboardCard key={exec.id} data={exec.result as SmartConciergeResult} theme={theme} executedAt={exec.executedAt} />;
+          } else if (exec.toolName === 'user_memory') {
             return <UserMemoryCard key={exec.id} data={exec.result as UserMemoryResult} theme={theme} executedAt={exec.executedAt} />;
           } else if (exec.toolName === 'forge_basics') {
             return <BasicsCard key={exec.id} data={exec.result as ForgeBasicsResult} theme={theme} executedAt={exec.executedAt} />;
@@ -708,6 +710,75 @@ const CoachDashboardCard: React.FC<{ data: TrainCoachPositionResult; theme: Them
       <div className={`p-2.5 rounded-xl border text-xs ${isPureBlack ? 'bg-[#141414] border-neutral-800 text-neutral-300' : 'bg-white border-neutral-200 text-neutral-700'}`}>
         <span className="font-bold text-amber-400">Walking Guide: </span>{data.walkingTip}
       </div>
+      <div className="text-[10px] text-neutral-500 text-right">Executed at {executedAt}</div>
+    </div>
+  );
+};
+
+const ConciergeDashboardCard: React.FC<{ data: SmartConciergeResult; theme: ThemeMode; executedAt: string }> = ({ data, theme, executedAt }) => {
+  const isPureBlack = theme === 'dark';
+  const isDay = data.dayPhase === 'morning' || data.dayPhase === 'afternoon';
+
+  return (
+    <div className={`rounded-2xl p-5 space-y-3.5 border transition-all ${
+      isPureBlack ? 'bg-[#0e0e0e] border-neutral-800 text-[#ededed]' : 'bg-[#f8f8fa] border-neutral-200 text-[#111111]'
+    }`}>
+      <div className="flex items-center justify-between pb-2 border-b border-neutral-800/40">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-lg ${
+            isDay ? 'bg-gradient-to-tr from-amber-500 to-violet-600 shadow-amber-600/30' : 'bg-gradient-to-tr from-indigo-600 to-violet-700 shadow-indigo-600/30'
+          }`}>
+            {isDay ? <Sun className="w-5 h-5 text-amber-200" /> : <Moon className="w-5 h-5 text-indigo-200" />}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="font-extrabold text-base tracking-tight">Executive Concierge</h4>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-violet-500/15 text-violet-400 border border-violet-500/30">
+                {data.currentTime || 'Live'}
+              </span>
+            </div>
+            <p className="text-xs text-neutral-400">{data.greeting || 'Daily Diurnal Overview'}</p>
+          </div>
+        </div>
+        <span className={`text-xs px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider ${
+          isDay ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' : 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30'
+        }`}>
+          {data.dayPhase || 'Diurnal'}
+        </span>
+      </div>
+
+      {data.commuteRecommendation && (
+        <div className={`p-3 rounded-xl border space-y-1.5 ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-white border-neutral-200'}`}>
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-violet-400 flex items-center gap-1">
+              <Car className="w-3.5 h-3.5" /> Commute Route
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
+              {data.commuteRecommendation.trafficStatus}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs font-semibold">
+            <span className="truncate max-w-[45%]">{data.commuteRecommendation.pickup}</span>
+            <ArrowRight className="w-3.5 h-3.5 text-neutral-500" />
+            <span className="truncate max-w-[45%] text-right">{data.commuteRecommendation.destination}</span>
+          </div>
+          <div className="flex items-center justify-between text-[11px] text-neutral-400 pt-1 border-t border-neutral-800/30">
+            <span>{data.commuteRecommendation.preferredFleet} ({data.commuteRecommendation.suggestedRoute})</span>
+            <span className="text-amber-400 font-bold">{data.commuteRecommendation.estimatedFare}</span>
+          </div>
+        </div>
+      )}
+
+      {data.weatherHighlight && (
+        <div className={`p-2.5 rounded-xl border text-xs flex items-center gap-2.5 ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-white border-neutral-200'}`}>
+          <CloudRain className="w-4 h-4 text-sky-400 flex-shrink-0" />
+          <div className="truncate">
+            <span className="font-bold mr-1.5">{data.weatherHighlight.temp} • {data.weatherHighlight.condition}</span>
+            <span className="text-neutral-400">{data.weatherHighlight.transitNote}</span>
+          </div>
+        </div>
+      )}
+
       <div className="text-[10px] text-neutral-500 text-right">Executed at {executedAt}</div>
     </div>
   );

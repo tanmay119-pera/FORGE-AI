@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult } from '../types';
 import { ThreeOrb } from './ThreeOrb';
-import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, VolumeX, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed, Copy, Keyboard, Command } from 'lucide-react';
+import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, VolumeX, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed, Copy, Keyboard, Command, Sun, Moon, Briefcase } from 'lucide-react';
 import { UserProfile } from './AuthModal';
 import { ForgeIcon } from './ForgeIcon';
 import { audioCueService } from '../services/audioCueService';
@@ -2160,7 +2160,146 @@ const InlineActionCard: React.FC<{
     );
   }
 
+  // 7. Smart Concierge & Diurnal Briefing Card
+  if (toolName === 'smart_concierge') {
+    const data = result as SmartConciergeResult;
+    const isDay = data.dayPhase === 'morning' || data.dayPhase === 'afternoon';
+
+    return (
+      <div className={`p-4 sm:p-5 rounded-2xl space-y-3.5 border transition-all ${
+        isPureBlack
+          ? 'bg-[#121212] border-neutral-800/80 text-white'
+          : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+      }`}>
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-neutral-800/50">
+          <div className="flex items-center gap-2.5">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md ${
+              isDay ? 'bg-gradient-to-tr from-amber-500 to-violet-600 shadow-amber-500/20' : 'bg-gradient-to-tr from-indigo-600 to-violet-700 shadow-indigo-600/20'
+            }`}>
+              {isDay ? <Sun className="w-5 h-5 text-amber-200" /> : <Moon className="w-5 h-5 text-indigo-200" />}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h5 className="font-extrabold text-sm sm:text-base tracking-tight">Executive Concierge Briefing</h5>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-violet-500/15 text-violet-400 border border-violet-500/30">
+                  {data.currentTime || 'Live'}
+                </span>
+              </div>
+              <p className={`text-xs ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} mt-0.5`}>
+                {data.greeting || 'Daily Diurnal Overview'}
+              </p>
+            </div>
+          </div>
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+            isDay ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' : 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/30'
+          }`}>
+            {data.dayPhase || 'Diurnal'}
+          </span>
+        </div>
+
+        {/* Executive Commute Route */}
+        {data.commuteRecommendation && (
+          <div className={`p-3 rounded-xl border space-y-2 ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-violet-500 flex items-center gap-1">
+                <Car className="w-3.5 h-3.5" /> Recommended Commute
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
+                {data.commuteRecommendation.trafficStatus}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between text-xs font-semibold">
+              <span className="truncate max-w-[42%]">{data.commuteRecommendation.pickup}</span>
+              <ArrowRight className="w-3.5 h-3.5 text-neutral-500 flex-shrink-0" />
+              <span className="truncate max-w-[42%] text-right">{data.commuteRecommendation.destination}</span>
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] pt-1 border-t border-neutral-800/30">
+              <span className={isPureBlack ? 'text-neutral-400' : 'text-neutral-600'}>
+                Fleet: <strong className={isPureBlack ? 'text-neutral-200' : 'text-neutral-900'}>{data.commuteRecommendation.preferredFleet}</strong> ({data.commuteRecommendation.suggestedRoute})
+              </span>
+              <span className="text-amber-400 font-bold">
+                {data.commuteRecommendation.estimatedFare}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Weather Highlight */}
+        {data.weatherHighlight && (
+          <div className={`p-3 rounded-xl border flex items-center gap-3 ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-sky-400 flex-shrink-0">
+              <CloudRain className="w-4 h-4" />
+            </div>
+            <div className="flex-1 min-w-0 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-bold">{data.weatherHighlight.temp} • {data.weatherHighlight.condition}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-sky-500/10 text-sky-400">Rain: {data.weatherHighlight.rainChance}</span>
+              </div>
+              <p className={`text-[11px] ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} line-clamp-1`}>
+                {data.weatherHighlight.transitNote}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Priority Events */}
+        {data.priorityEvents && data.priorityEvents.length > 0 && (
+          <div className="space-y-1.5">
+            <span className={`text-[10px] font-bold uppercase tracking-wider block ${isPureBlack ? 'text-neutral-400' : 'text-neutral-500'}`}>
+              Priority Events & Agenda ({data.priorityEvents.length})
+            </span>
+            <div className="space-y-1.5">
+              {data.priorityEvents.map((evt, eIdx) => (
+                <div
+                  key={eIdx}
+                  className={`p-2.5 rounded-xl border text-xs flex items-center justify-between ${
+                    isPureBlack ? 'bg-[#161616] border-neutral-800/80' : 'bg-neutral-50 border-neutral-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Clock className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
+                    <div className="truncate">
+                      <span className="font-bold block truncate">{evt.title}</span>
+                      <span className={`text-[10px] ${isPureBlack ? 'text-neutral-400' : 'text-neutral-500'}`}>
+                        {evt.status}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded font-bold bg-neutral-800 border border-neutral-700 text-neutral-300 flex-shrink-0">
+                    {evt.time}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Suggested Action Pills */}
+        {data.suggestedActionPills && data.suggestedActionPills.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            {data.suggestedActionPills.map((pill, pIdx) => (
+              <button
+                key={pIdx}
+                type="button"
+                onClick={() => onCommandClick?.(pill)}
+                className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all text-left flex items-center gap-1 group active:scale-95 ${
+                  isPureBlack
+                    ? 'bg-[#181818] hover:bg-[#202020] text-violet-300 hover:text-white border-neutral-800 hover:border-violet-500/40 shadow-sm'
+                    : 'bg-white hover:bg-neutral-50 text-violet-700 hover:text-violet-900 border-neutral-200 hover:border-violet-300 shadow-sm'
+                }`}
+              >
+                <span>{pill}</span>
+                <ArrowRight className="w-2.5 h-2.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 text-violet-400 transition-all" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return null;
-
-
 };
