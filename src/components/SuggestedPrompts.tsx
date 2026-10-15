@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeMode } from '../types';
-import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User, CloudRain, Building2, DollarSign, CheckSquare, Compass } from 'lucide-react';
+import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User, CloudRain, Building2, DollarSign, CheckSquare, Compass, Sun } from 'lucide-react';
 
 interface SuggestedPromptsProps {
   onSelectPrompt: (prompt: string) => void;
@@ -11,6 +11,11 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onSelectProm
   const isPureBlack = theme === 'dark';
 
   const prompts = [
+    {
+      title: 'Concierge Briefing',
+      text: 'Give me my executive concierge briefing for today',
+      icon: Sun
+    },
     {
       title: 'The Basics',
       text: 'Tell me the basics of Forge and how MCP tools work',

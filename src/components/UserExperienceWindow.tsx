@@ -431,6 +431,7 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
 
   // Quick Action Pills directly matching Screenshot style
   const quickPills = [
+    { label: '🌤️ Concierge Briefing', action: 'prompt', prompt: 'Give me my executive concierge briefing for today' },
     { label: '💡 The Basics', action: 'prompt', prompt: 'Tell me the basics of Forge and how it works' },
     { label: '👤 My Memory', action: 'prompt', prompt: 'Show my saved user profile & memory' },
     { label: '🚗 Ride Home', action: 'prompt', prompt: 'Take me home' },
