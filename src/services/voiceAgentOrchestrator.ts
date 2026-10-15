@@ -2,6 +2,8 @@ import { MCPLogEntry, ToolCallExecution, VoiceState } from '../types';
 import { executeMCPTool, MCP_TOOLS } from './mcpTools';
 import { geminiService } from './geminiService';
 import { elevenLabsService } from './elevenLabsService';
+import { audioCueService } from './audioCueService';
+
 
 export interface OrchestratorCallbacks {
   onVoiceStateChange: (state: VoiceState) => void;
@@ -57,8 +59,10 @@ export class VoiceAgentOrchestrator {
     try {
       this.isListening = true;
       this.callbacks?.onVoiceStateChange('listening');
+      audioCueService.playStartListening();
 
       this.recognition.onresult = (event: any) => {
+
         let interim = '';
         let finalTranscript = '';
 
@@ -102,8 +106,10 @@ export class VoiceAgentOrchestrator {
       this.recognition.stop();
       this.isListening = false;
       this.callbacks?.onVoiceStateChange('idle');
+      audioCueService.playStopListening();
     }
   }
+
 
   public stopSpeaking() {
     elevenLabsService.stopSpeaking();
@@ -176,8 +182,10 @@ export class VoiceAgentOrchestrator {
     const isChecklist = lower.includes('pack') || lower.includes('packing') || lower.includes('checklist') || lower.includes('luggage') || lower.includes('baggage');
     const isCurrency = lower.includes('currency') || lower.includes('convert') || lower.includes('exchange rate') || lower.includes('dollar') || lower.includes('rupee') || lower.includes('forex');
     const isCoach = lower.includes('coach') || lower.includes('bogie') || lower.includes('seat position') || lower.includes('rake') || lower.includes('platform walk');
+    const isConcierge = lower.includes('briefing') || lower.includes('agenda') || lower.includes('overview of my day') || lower.includes('how is my day') || lower.includes('morning check') || lower.includes('what should i do') || lower.includes('concierge') || lower.includes('daily overview');
 
     const multiPlan = (isTrain || lower.includes('station')) && (isCab || lower.includes('go') || lower.includes('get to'));
+
 
     const isCreatorQuery = lower.includes('who are you') || lower.includes('who made you') || lower.includes('who built you') || lower.includes('who created you') || lower.includes('creator');
 
@@ -286,8 +294,10 @@ export class VoiceAgentOrchestrator {
       await this.executeSingleAction('currency_converter', { amount: 500, from_currency: 'USD', to_currency: 'INR' });
     } else if (isCoach) {
       await this.executeSingleAction('coach_position', { train_query: '12004 Shatabdi Express', coach_code: 'C4' });
+    } else if (isConcierge) {
+      await this.executeSingleAction('smart_concierge', { focus: 'daily_overview' });
     } else {
-      await this.speakResponse(`I am FORGE, built by Tanmay (Adesh Srivastava). You can say: "Tell me the basics", "Book an Uber to Central Station", or "Check Vande Bharat train status".`);
+      await this.speakResponse(`I am FORGE, built by Tanmay (Adesh Srivastava). You can say: "Tell me the basics", "Give me my daily briefing", or "Book an Uber to Central Station".`);
     }
   }
 
@@ -302,6 +312,7 @@ export class VoiceAgentOrchestrator {
 
     try {
       const result = await executeMCPTool(toolName, args);
+      audioCueService.playActionSuccess();
       const duration = Math.round(performance.now() - start);
 
       this.logMCP('server_to_client', 'tools/call_result', {
@@ -345,7 +356,10 @@ export class VoiceAgentOrchestrator {
         speech = `Created smart packing checklist with ${result.totalItems} items for ${result.destination}. ${result.proactiveTip}`;
       } else if (toolName === 'coach_position') {
         speech = `${result.trainName}: Coach ${result.passengerCoach} is at ${result.platform}. ${result.walkingTip}`;
+      } else if (toolName === 'smart_concierge') {
+        speech = `${result.greeting} Your commute to ${result.commuteRecommendation.destination} is ${result.commuteRecommendation.trafficStatus}. Weather is ${result.weatherHighlight.temp} with ${result.weatherHighlight.condition}.`;
       }
+
 
 
       await this.speakResponse(speech);
