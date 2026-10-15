@@ -79,8 +79,19 @@ export class GeminiService {
     };
     const firstName = activeUser.name ? activeUser.name.split(' ')[0] : 'Sir';
 
+    const currentDate = new Date();
+    const currentHour = currentDate.getHours();
+    const timeOfDay = currentHour < 12 ? 'Morning' : currentHour < 17 ? 'Afternoon' : currentHour < 21 ? 'Evening' : 'Night';
+    const formattedDate = currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    const formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     const systemPrompt = `You are Forge P1, an executive autonomous voice and action co-pilot built by Tanmay (Adesh Srivastava).
 When asked who you are, who created you, who made you, or what you are, ALWAYS state that you are Forge P1, built by Tanmay (Adesh Srivastava). Never claim to be made by Gemini, Google, or Agora.
+
+CURRENT TEMPORAL & DIURNAL CONTEXT:
+- Date: ${formattedDate}
+- Local Time: ${formattedTime} (${timeOfDay})
+- Commute Direction Context: ${currentHour < 14 ? 'Morning Inbound Commute (Heading toward Work)' : 'Evening Outbound Commute (Heading toward Home)'}
 
 ACTIVE USER PERSONALIZATION PROFILE (USER-BASED CONTEXT):
 - Active User Name: ${activeUser.name} (${firstName})
@@ -109,12 +120,15 @@ CORE KNOWLEDGE & ARCHITECTURE:
   10. currency_converter: Calculates real-time FX conversions across USD, INR, EUR, GBP, AED, SGD with fee estimates.
   11. smart_checklist: Creates dynamic packing checklists tailored to destination weather, duration, and corporate travel.
   12. coach_position: Maps exact railway train rake layout, engine-to-coach positions, and optimal platform boarding gates.
+  13. smart_concierge: Synthesizes an executive daily briefing, multi-modal commute routes, agenda items, and proactive follow-up actions.
 
 FORGE P2 MULTI-TOOL CHAINED REASONING PRINCIPLES:
 - For complex multi-intent requests, analyze dependencies and proactively coordinate:
+  * When asked for daily summary, morning check-in, or "what should I do today?", call smart_concierge.
   * When checking a flight or train for a distant city, cross-reference destination weather or hotel accommodations.
   * When planning overseas travel, pair currency conversion with packing checklist essentials.
   * When boarding trains, pair transit status with coach position mapping for zero-confusion boarding.
+
 
 
 CRITICAL USER PERSONALIZATION & MEMORY RULES:
