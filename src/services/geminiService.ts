@@ -174,8 +174,12 @@ CRITICAL WEATHER, TRAVEL & LOGISTICS COORDINATION RULES:
 5. TRAIN COACH PLATFORM MAPPING:
    - When asked "Where is coach C4?", "Find my coach on Shatabdi", "Coach position for 12004":
      Call coach_position with train_query and coach_code.
+6. EXECUTIVE CONCIERGE & DAILY BRIEFING:
+   - When asked "Give me my daily briefing", "What should I do today?", "Morning briefing", "Executive overview", or "Concierge check-in":
+     Call smart_concierge immediately!
 
 Keep your spoken responses executive, concise (1-2 sentences max), crisp, professional, and confident.`;
+
 
 
     // Append to conversation history (keep max 10 turns)
@@ -316,6 +320,8 @@ Keep your spoken responses executive, concise (1-2 sentences max), crisp, profes
         fallbackSpeech = `Prepared ${toolResult.totalItems}-item ${toolResult.tripType} packing list for ${toolResult.destination}. ${toolResult.proactiveTip}`;
       } else if (toolName === 'coach_position') {
         fallbackSpeech = `${toolResult.trainName}: Coach ${toolResult.passengerCoach} is at ${toolResult.platform}. ${toolResult.walkingTip}`;
+      } else if (toolName === 'smart_concierge') {
+        fallbackSpeech = `${toolResult.greeting} Your commute to ${toolResult.commuteRecommendation.destination} is ${toolResult.commuteRecommendation.trafficStatus}. Weather is ${toolResult.weatherHighlight.temp} with ${toolResult.weatherHighlight.condition}.`;
       } else {
         fallbackSpeech = `Found ${toolResult.product} on ${toolResult.cheapestVendor} for ${toolResult.lowestPrice}.`;
       }
@@ -336,6 +342,78 @@ Keep your spoken responses executive, concise (1-2 sentences max), crisp, profes
     onMCPLog('server_to_client', 'llm/gemini_response', { text: textReply }, elapsed);
     return textReply;
   }
+
+  public getFollowUpSuggestions(toolName?: string, result?: any): string[] {
+    if (toolName === 'smart_concierge') {
+      return result?.suggestedActionPills || [
+        'Take me to work in an Uber Premier',
+        'Check Vande Bharat live train status',
+        'Check live weather radar for Mumbai'
+      ];
+    }
+    if (toolName === 'cab_dispatch') {
+      return [
+        'Schedule arrival meeting on Google Calendar',
+        'Check train status at destination',
+        'Show driver tracking PIN'
+      ];
+    }
+    if (toolName === 'transit_tracker') {
+      return [
+        'Where is coach C4 on this train?',
+        'Book an Uber cab to the station',
+        'Schedule boarding reminder on Calendar'
+      ];
+    }
+    if (toolName === 'flight_tracker') {
+      return [
+        'Check destination weather radar',
+        'Find executive hotels near airport',
+        'Create packing checklist'
+      ];
+    }
+    if (toolName === 'weather_radar') {
+      return [
+        'Book an Uber cab with extra buffer',
+        'Find executive hotels in this city',
+        'Generate packing checklist for this weather'
+      ];
+    }
+    if (toolName === 'hotel_booking') {
+      return [
+        'Convert 500 dollars to rupees',
+        'Check weather forecast for this stay',
+        'Book Uber ride to hotel'
+      ];
+    }
+    if (toolName === 'smart_checklist') {
+      return [
+        'Check destination weather radar',
+        'Find executive hotels',
+        'Convert travel currency'
+      ];
+    }
+    if (toolName === 'coach_position') {
+      return [
+        'Check Vande Bharat live train status',
+        'Book an Uber Premier to Station Gate 2',
+        'Schedule boarding reminder'
+      ];
+    }
+    if (toolName === 'forge_basics') {
+      return [
+        'Give me my executive daily briefing',
+        'Take me home in an Uber Premier',
+        'Check Vande Bharat train status'
+      ];
+    }
+    return [
+      'Give me my executive daily briefing',
+      'Tell me the basics of Forge',
+      'Check Vande Bharat live train status'
+    ];
+  }
 }
+
 
 export const geminiService = new GeminiService();
