@@ -1198,6 +1198,33 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
                   <InlineActionCard execution={msg.execution} theme={theme} onCommandClick={(cmd) => handleQuickChip(cmd)} />
                 </div>
               )}
+
+              {/* Dynamic Interactive Follow-Up Chips */}
+              {!isUser && msg.followUpSuggestions && msg.followUpSuggestions.length > 0 && (
+                <div className="w-full max-w-[88%] sm:max-w-[82%] pt-1 flex flex-wrap items-center gap-1.5 animate-in fade-in duration-300">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 mr-1 select-none ${
+                    isPureBlack ? 'text-neutral-500' : 'text-neutral-400'
+                  }`}>
+                    <Sparkles className="w-2.5 h-2.5 text-violet-400" />
+                    Suggested:
+                  </span>
+                  {msg.followUpSuggestions.map((suggestion, sIdx) => (
+                    <button
+                      key={sIdx}
+                      type="button"
+                      onClick={() => handleQuickChip(suggestion)}
+                      className={`text-[11px] font-medium px-2.5 py-1 rounded-full border transition-all text-left flex items-center gap-1 group active:scale-95 ${
+                        isPureBlack
+                          ? 'bg-[#181818] hover:bg-[#222222] text-neutral-300 hover:text-white border-neutral-800 hover:border-violet-500/50 shadow-sm'
+                          : 'bg-white hover:bg-neutral-50 text-neutral-700 hover:text-neutral-900 border-neutral-200 hover:border-violet-400 shadow-sm'
+                      }`}
+                    >
+                      <span>{suggestion}</span>
+                      <ArrowRight className="w-2.5 h-2.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 text-violet-400 transition-all" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })}
