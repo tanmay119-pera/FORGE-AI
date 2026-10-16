@@ -14,7 +14,22 @@
       "date": "2026-10-12",
       "commits": 25,
       "summary": "Cognitive context trimmer, intent router, episodic memory, trace builder, and tests"
+    },
+    {
+      "date": "2026-10-16",
+      "commits": 25,
+      "summary": "Voice entity parsers, transit normalizers, deep link builders, and UI strips"
+    },
+    {
+      "date": "2026-10-18",
+      "commits": 25,
+      "summary": "Latency percentile histogram, error taxonomy, health monitor, and telemetry exporters"
+    },
+    {
+      "date": "2026-10-19",
+      "commits": 25,
+      "summary": "UI keyboard shortcuts, ARIA live announcer, fuzzy filter, toast queue, and focus helpers"
     }
   ],
-  "total": 75
+  "total": 150
 }
