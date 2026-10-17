@@ -1,4 +1,4 @@
-import { MCPLogEntry, ToolCallExecution, VoiceState } from '../types';
+import { MCPLogEntry, ToolCallExecution, VoiceState, ReasoningTrace } from '../types';
 import { executeMCPTool, MCP_TOOLS } from './mcpTools';
 import { geminiService } from './geminiService';
 import { elevenLabsService } from './elevenLabsService';
@@ -13,6 +13,7 @@ export interface OrchestratorCallbacks {
   onAssistantSpeech: (text: string) => void;
   onToolExecuted: (execution: ToolCallExecution) => void;
   onMCPLog: (log: MCPLogEntry) => void;
+  onCognitiveTrace?: (trace: ReasoningTrace) => void;
 }
 
 export class VoiceAgentOrchestrator {
@@ -22,11 +23,13 @@ export class VoiceAgentOrchestrator {
   private isListening = false;
   private synth: SpeechSynthesis | null = null;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
+  private latestCognitiveTrace: ReasoningTrace | null = null;
   private pendingCabState: {
     step: 'awaiting_locations' | 'awaiting_destination';
     pickup?: string;
     destination?: string;
   } | null = null;
+
   private entityMemory: {
     lastCity?: string;
     lastDestination?: string;
@@ -42,6 +45,10 @@ export class VoiceAgentOrchestrator {
 
   public clearEntityMemory() {
     this.entityMemory = {};
+  }
+
+  public getLatestCognitiveTrace(): ReasoningTrace | null {
+    return this.latestCognitiveTrace;
   }
 
   private notifyToolExecuted(execution: ToolCallExecution) {
@@ -189,12 +196,28 @@ export class VoiceAgentOrchestrator {
         }
       );
 
+      const trace = aiTrainingService.generateCognitiveTrace(
+        effectivePrompt,
+        this.entityMemory.lastToolName,
+        0.98
+      );
+      this.latestCognitiveTrace = trace;
+      this.callbacks?.onCognitiveTrace?.(trace);
+
       await this.speakResponse(reply);
     } catch (err: any) {
       console.warn('Gemini live call error, using deterministic fail-safe:', err);
 
       // Fallback deterministic tool planner
       await this.fallbackPlanner(effectivePrompt);
+
+      const trace = aiTrainingService.generateCognitiveTrace(
+        effectivePrompt,
+        this.entityMemory.lastToolName,
+        0.95
+      );
+      this.latestCognitiveTrace = trace;
+      this.callbacks?.onCognitiveTrace?.(trace);
     }
   }
 
