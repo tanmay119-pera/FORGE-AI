@@ -1,5 +1,5 @@
 import { MCP_TOOLS, executeMCPTool } from './mcpTools';
-import { ToolCallExecution, UserProfile } from '../types';
+import { ToolCallExecution, UserProfile, PromptTuningPreset } from '../types';
 import { aiTrainingService } from './aiTrainingService';
 
 export const DEFAULT_GEMINI_KEY = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEY) || '';
@@ -17,6 +17,15 @@ export class GeminiService {
   private apiKey: string;
   private userContext: UserProfile | null = null;
   private conversationHistory: Array<{ role: 'user' | 'model'; parts: any[] }> = [];
+  private tuningPreset: PromptTuningPreset = {
+    id: 'preset-executive',
+    name: 'Executive Deterministic',
+    temperature: 0.15,
+    topP: 0.85,
+    topK: 40,
+    reasoningDepth: 'balanced',
+    description: 'High-precision tool invocation with zero hallucinations and crisp verbal conciseness'
+  };
 
   constructor() {
     this.apiKey = (typeof window !== 'undefined' && localStorage.getItem('forge_gemini_key')) || DEFAULT_GEMINI_KEY;
@@ -27,8 +36,26 @@ export class GeminiService {
           this.userContext = JSON.parse(rawUser);
         } catch (e) {}
       }
+      const rawPreset = localStorage.getItem('forge_tuning_preset');
+      if (rawPreset) {
+        try {
+          this.tuningPreset = { ...this.tuningPreset, ...JSON.parse(rawPreset) };
+        } catch (e) {}
+      }
     }
   }
+
+  public setTuningPreset(preset: Partial<PromptTuningPreset>) {
+    this.tuningPreset = { ...this.tuningPreset, ...preset };
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('forge_tuning_preset', JSON.stringify(this.tuningPreset));
+    }
+  }
+
+  public getTuningPreset(): PromptTuningPreset {
+    return { ...this.tuningPreset };
+  }
+
 
   public setUserContext(user: UserProfile | null) {
     this.userContext = user;
@@ -224,7 +251,13 @@ ${fewShotContext ? `${fewShotContext}\n\n` : ''}Keep your spoken responses execu
         {
           functionDeclarations: geminiFunctionDeclarations
         }
-      ]
+      ],
+      generationConfig: {
+        temperature: this.tuningPreset.temperature,
+        topP: this.tuningPreset.topP,
+        topK: this.tuningPreset.topK,
+        maxOutputTokens: 1024
+      }
     };
 
     onMCPLog('client_to_server', 'llm/gemini_query', { model: GEMINI_MODEL, prompt });
