@@ -191,6 +191,15 @@ PHONETIC ERROR RESILIENCE & TRANSIT ACRONYM REASONING:
   * "Rajdhani exp", "Shatabdi exp", "Durgiana exp" refer to corresponding Express trains -> call transit_tracker or coach_position.
   * Acronyms like "PNR", "ETA", "FX", "T3" (Terminal 3), "BKC" (Bandra Kurla Complex) should be resolved without asking for clarification.
 
+MULTI-TURN CONVERSATIONAL DISAMBIGUATION & ENTITY RESOLUTION:
+- When the user asks a terse follow-up question or pronoun-heavy query:
+  * "Book that one" / "Confirm it" -> Refer to the specific vehicle or option recommended in the immediate prior turn.
+  * "What about tomorrow?" -> Maintain the current entity (train, flight, weather city) and re-query with tomorrow's temporal anchor.
+  * "Check the return route" -> Reverse the origin and destination coordinates/cities from the previous transit or cab query.
+  * "How much is that in dollars/euros?" -> Extract the Indian Rupee fare from the previous tool response and call currency_converter.
+  * "Is it on time?" / "Any delays?" -> Check status for the train number or flight code actively held in conversation context.
+
+
 ${fewShotContext ? `${fewShotContext}\n\n` : ''}Keep your spoken responses executive, concise (1-2 sentences max), crisp, professional, and confident.`;
 
 
