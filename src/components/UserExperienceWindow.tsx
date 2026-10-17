@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult, ReasoningTrace, PromptTuningPreset, ModelDiagnosticResult } from '../types';
 import { ThreeOrb } from './ThreeOrb';
-import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, VolumeX, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed, Copy, Keyboard, Command, Sun, Moon, Briefcase, Brain, Sliders } from 'lucide-react';
+import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, VolumeX, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed, Copy, Keyboard, Command, Sun, Moon, Briefcase, Brain, Sliders, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { UserProfile } from './AuthModal';
 import { ForgeIcon } from './ForgeIcon';
 import { audioCueService } from '../services/audioCueService';
@@ -111,6 +111,22 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
       utterance.pitch = 1.0;
       window.speechSynthesis.speak(utterance);
     }
+  };
+
+  const handleFeedback = (messageId: string, feedback: 'positive' | 'negative') => {
+    setMessages(prev => prev.map(m => {
+      if (m.id === messageId) {
+        aiTrainingService.recordFeedback({
+          query: m.sender === 'forge' ? 'Assistant Turn' : m.text,
+          response: m.text,
+          toolUsed: m.execution?.toolName,
+          feedback
+        });
+        audioCueService.playActionSuccess();
+        return { ...m, userFeedback: feedback };
+      }
+      return m;
+    }));
   };
 
   // Global Keyboard Shortcuts
@@ -1254,6 +1270,38 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
                     >
                       <Brain className="w-3 h-3 text-purple-400" />
                       <span className="text-[9px]">Reasoning</span>
+                    </button>
+
+                    {/* Thumbs Up Alignment Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleFeedback(msg.id, 'positive')}
+                      className={`px-1.5 py-0.5 rounded-md transition-colors text-[10px] flex items-center gap-1 ${
+                        msg.userFeedback === 'positive'
+                          ? 'text-emerald-400 bg-emerald-500/15'
+                          : isPureBlack
+                          ? 'text-neutral-500 hover:text-emerald-400 hover:bg-neutral-800'
+                          : 'text-neutral-400 hover:text-emerald-600 hover:bg-neutral-100'
+                      }`}
+                      title="Good response (Train & Align AI Model)"
+                    >
+                      <ThumbsUp className="w-3 h-3" />
+                    </button>
+
+                    {/* Thumbs Down Alignment Button */}
+                    <button
+                      type="button"
+                      onClick={() => handleFeedback(msg.id, 'negative')}
+                      className={`px-1.5 py-0.5 rounded-md transition-colors text-[10px] flex items-center gap-1 ${
+                        msg.userFeedback === 'negative'
+                          ? 'text-rose-400 bg-rose-500/15'
+                          : isPureBlack
+                          ? 'text-neutral-500 hover:text-rose-400 hover:bg-neutral-800'
+                          : 'text-neutral-400 hover:text-rose-600 hover:bg-neutral-100'
+                      }`}
+                      title="Needs improvement (Feedback for Retraining)"
+                    >
+                      <ThumbsDown className="w-3 h-3" />
                     </button>
                   </div>
                 )}
