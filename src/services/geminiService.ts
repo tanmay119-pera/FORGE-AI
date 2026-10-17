@@ -182,6 +182,15 @@ CRITICAL WEATHER, TRAVEL & LOGISTICS COORDINATION RULES:
    - When asked "Give me my daily briefing", "What should I do today?", "Morning briefing", "Executive overview", or "Concierge check-in":
      Call smart_concierge immediately!
 
+PHONETIC ERROR RESILIENCE & TRANSIT ACRONYM REASONING:
+- Real-time voice transcripts often contain phonetic noise or speech-to-text slips:
+  * "Uba", "Oober", "Ubr" refer to Uber cabs -> call cab_dispatch.
+  * "Blink it", "Blinkin", "Blinked" refer to Blinkit store -> call local_pricing with store="Blinkit".
+  * "Insta mart" refers to Swiggy Instamart -> call local_pricing.
+  * "Vande barat", "Vande bharath", "Vande bhatat" refer to Vande Bharat train -> call transit_tracker with train_query="Vande Bharat".
+  * "Rajdhani exp", "Shatabdi exp", "Durgiana exp" refer to corresponding Express trains -> call transit_tracker or coach_position.
+  * Acronyms like "PNR", "ETA", "FX", "T3" (Terminal 3), "BKC" (Bandra Kurla Complex) should be resolved without asking for clarification.
+
 ${fewShotContext ? `${fewShotContext}\n\n` : ''}Keep your spoken responses executive, concise (1-2 sentences max), crisp, professional, and confident.`;
 
 
