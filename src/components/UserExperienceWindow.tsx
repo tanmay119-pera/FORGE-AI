@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult, ReasoningTrace, PromptTuningPreset } from '../types';
+import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult, ReasoningTrace, PromptTuningPreset, ModelDiagnosticResult } from '../types';
 import { ThreeOrb } from './ThreeOrb';
 import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, VolumeX, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed, Copy, Keyboard, Command, Sun, Moon, Briefcase, Brain, Sliders } from 'lucide-react';
 import { UserProfile } from './AuthModal';
@@ -2406,6 +2406,75 @@ const InlineActionCard: React.FC<{
                 <span>{pill}</span>
                 <ArrowRight className="w-2.5 h-2.5 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 text-violet-400 transition-all" />
               </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // 14. Cognitive Model Diagnostics & Benchmark Card
+  if (toolName === 'model_diagnostic') {
+    const data = result as ModelDiagnosticResult;
+    return (
+      <div className={`p-4 sm:p-5 rounded-2xl space-y-3.5 border transition-all ${
+        isPureBlack
+          ? 'bg-[#121212] border-neutral-800/80 text-white'
+          : 'bg-white border-neutral-200 text-neutral-900 shadow-md'
+      }`}>
+        <div className="flex items-center justify-between pb-3 border-b border-neutral-800/50">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+              <Brain className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h5 className="font-extrabold text-sm sm:text-base tracking-tight">AI Model Diagnostic & Telemetry</h5>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                  {data.accuracyRate}% Accuracy
+                </span>
+              </div>
+              <p className={`text-xs ${isPureBlack ? 'text-neutral-400' : 'text-neutral-600'} mt-0.5`}>
+                {data.engine} • Evaluated at {data.lastEvaluationTimestamp}
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">
+            {data.toolRegistryCount} MCP Tools
+          </span>
+        </div>
+
+        {/* 4 Metric Badges */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+          <div className={`p-2.5 rounded-xl border text-center ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className="text-[10px] uppercase font-mono text-neutral-500">Latency</div>
+            <div className="font-extrabold text-sm text-cyan-400 mt-0.5">{data.averageInferenceLatencyMs} ms</div>
+          </div>
+          <div className={`p-2.5 rounded-xl border text-center ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className="text-[10px] uppercase font-mono text-neutral-500">Few-Shots</div>
+            <div className="font-extrabold text-sm text-purple-400 mt-0.5">{data.fewShotCount} Exemplars</div>
+          </div>
+          <div className={`p-2.5 rounded-xl border text-center ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className="text-[10px] uppercase font-mono text-neutral-500">Throughput</div>
+            <div className="font-extrabold text-sm text-emerald-400 mt-0.5">{data.tokenThroughputPerSec} t/s</div>
+          </div>
+          <div className={`p-2.5 rounded-xl border text-center ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <div className="text-[10px] uppercase font-mono text-neutral-500">Phonetics</div>
+            <div className="font-extrabold text-sm text-amber-400 mt-0.5 capitalize">{data.phoneticNormalizerStatus}</div>
+          </div>
+        </div>
+
+        {/* Recommendations List */}
+        {data.recommendations && data.recommendations.length > 0 && (
+          <div className={`p-3 rounded-xl border text-xs space-y-1.5 ${isPureBlack ? 'bg-[#181818] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400 block">
+              Alignment & Diagnostic Findings:
+            </span>
+            {data.recommendations.map((rec, rIdx) => (
+              <div key={rIdx} className="flex items-start gap-1.5 text-[11px]">
+                <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                <span className={isPureBlack ? 'text-neutral-300' : 'text-neutral-700'}>{rec}</span>
+              </div>
             ))}
           </div>
         )}
