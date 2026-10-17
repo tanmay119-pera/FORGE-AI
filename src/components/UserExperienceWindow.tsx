@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult } from '../types';
+import { VoiceState, ThemeMode, ToolCallExecution, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult, ReasoningTrace, PromptTuningPreset } from '../types';
 import { ThreeOrb } from './ThreeOrb';
-import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, VolumeX, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed, Copy, Keyboard, Command, Sun, Moon, Briefcase } from 'lucide-react';
+import { Mic, Square, Loader2, ArrowUp, Sparkles, Car, Train, Calendar, ShoppingBag, Volume2, VolumeX, CheckCircle2, MapPin, Clock, ChevronDown, Plus, RotateCcw, Flame, Check, Zap, Gauge, Plane, ExternalLink, ArrowRight, Tag, User, Navigation, CloudRain, Building2, DollarSign, CheckSquare, Compass, Bed, Copy, Keyboard, Command, Sun, Moon, Briefcase, Brain, Sliders } from 'lucide-react';
 import { UserProfile } from './AuthModal';
 import { ForgeIcon } from './ForgeIcon';
 import { audioCueService } from '../services/audioCueService';
 import { geminiService } from '../services/geminiService';
+import { aiTrainingService } from '../services/aiTrainingService';
 
 interface Message {
   id: string;
@@ -15,6 +16,8 @@ interface Message {
   model?: 'p1' | 'p2';
   execution?: ToolCallExecution;
   followUpSuggestions?: string[];
+  reasoningTrace?: ReasoningTrace;
+  userFeedback?: 'positive' | 'negative';
 }
 
 
@@ -85,6 +88,9 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
   const [isSoundOn, setIsSoundOn] = useState(() => audioCueService.isSoundEnabled());
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [activeTraceForDrawer, setActiveTraceForDrawer] = useState<ReasoningTrace | null>(null);
+  const [isTraceDrawerOpen, setIsTraceDrawerOpen] = useState(false);
+  const [isTuningModalOpen, setIsTuningModalOpen] = useState(false);
 
   const handleCopyMessage = (id: string, text: string) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -1192,6 +1198,30 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
                     >
                       <Volume2 className="w-3 h-3" />
                       <span className="text-[9px]">Speak</span>
+                    </button>
+
+                    {/* Cognitive Reasoning Trace Trigger Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const trace = msg.reasoningTrace || aiTrainingService.generateCognitiveTrace(
+                          msg.execution?.args ? JSON.stringify(msg.execution.args) : msg.text,
+                          msg.execution?.toolName || 'conversational_dialogue',
+                          msg.execution?.confidence || 0.98
+                        );
+                        setActiveTraceForDrawer(trace);
+                        setIsTraceDrawerOpen(true);
+                        audioCueService.playActionSuccess();
+                      }}
+                      className={`px-1.5 py-0.5 rounded-md transition-colors text-[10px] flex items-center gap-1 ${
+                        isPureBlack
+                          ? 'text-neutral-500 hover:text-purple-400 hover:bg-neutral-800'
+                          : 'text-neutral-400 hover:text-purple-600 hover:bg-neutral-100'
+                      }`}
+                      title="Inspect Cognitive Reasoning Trace"
+                    >
+                      <Brain className="w-3 h-3 text-purple-400" />
+                      <span className="text-[9px]">Reasoning</span>
                     </button>
                   </div>
                 )}
