@@ -7,6 +7,8 @@ import { ForgeIcon } from './ForgeIcon';
 import { audioCueService } from '../services/audioCueService';
 import { geminiService } from '../services/geminiService';
 import { aiTrainingService } from '../services/aiTrainingService';
+import { CognitiveTraceDrawer } from './CognitiveTraceDrawer';
+import { ModelTuningModal } from './ModelTuningModal';
 
 interface Message {
   id: string;
@@ -1030,6 +1032,21 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
 
           {/* Shortcuts Cheat Sheet Modal */}
           {renderShortcutsModal()}
+
+          {/* Model Tuning Modal */}
+          <ModelTuningModal
+            isOpen={isTuningModalOpen}
+            onClose={() => setIsTuningModalOpen(false)}
+            theme={theme}
+          />
+
+          {/* Cognitive Reasoning Trace Drawer */}
+          <CognitiveTraceDrawer
+            trace={activeTraceForDrawer}
+            isOpen={isTraceDrawerOpen}
+            onClose={() => setIsTraceDrawerOpen(false)}
+            theme={theme}
+          />
         </div>
 
       </div>
@@ -1091,6 +1108,21 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
             title="Keyboard Shortcuts (⌘ /)"
           >
             <Keyboard className="w-3.5 h-3.5" />
+          </button>
+
+          {/* AI Model Hyperparameter Tuning Button */}
+          <button
+            type="button"
+            onClick={() => {
+              setIsTuningModalOpen(true);
+              audioCueService.playActionSuccess();
+            }}
+            className={`p-1.5 sm:p-2 rounded-xl border transition-all ${
+              isPureBlack ? 'bg-[#161616] text-neutral-400 hover:text-purple-400 border-neutral-800' : 'bg-white text-neutral-600 hover:text-purple-600 border-neutral-200 shadow-sm'
+            }`}
+            title="Tune AI Model Hyperparameters"
+          >
+            <Sliders className="w-3.5 h-3.5 text-purple-400" />
           </button>
 
           {/* New Chat Button */}
@@ -1377,6 +1409,21 @@ export const UserExperienceWindow: React.FC<UserExperienceWindowProps> = ({
 
       {/* Shortcuts Cheat Sheet Modal */}
       {renderShortcutsModal()}
+
+      {/* Model Tuning Modal */}
+      <ModelTuningModal
+        isOpen={isTuningModalOpen}
+        onClose={() => setIsTuningModalOpen(false)}
+        theme={theme}
+      />
+
+      {/* Cognitive Reasoning Trace Drawer */}
+      <CognitiveTraceDrawer
+        trace={activeTraceForDrawer}
+        isOpen={isTraceDrawerOpen}
+        onClose={() => setIsTraceDrawerOpen(false)}
+        theme={theme}
+      />
     </div>
   );
 };
