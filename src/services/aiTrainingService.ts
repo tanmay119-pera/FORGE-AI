@@ -324,6 +324,32 @@ export class AITrainingService {
       overallConfidence: confidence
     };
   }
+
+  /**
+   * Formats top few-shot training examples into a high-density, structured
+   * system prompt block to train the LLM on input-to-tool-calling mappings.
+   */
+  public buildFewShotPromptContext(query: string): string {
+    const exemplars = this.findRelevantExemplars(query, 4);
+    if (!exemplars || exemplars.length === 0) return '';
+
+    const lines = [
+      'HIGH-PRECISION FEW-SHOT TRAINING DEMONSTRATIONS (GOLDEN EXAMPLES):',
+      'Follow the exact tool calling and response pattern demonstrated below:'
+    ];
+
+    exemplars.forEach((ex, idx) => {
+      lines.push(
+        `Example ${idx + 1}:`,
+        `  User Query: "${ex.userPrompt}"`,
+        `  Target MCP Tool: ${ex.expectedTool}`,
+        `  Tool Arguments: ${JSON.stringify(ex.expectedArgs)}`,
+        `  Spoken Synthesis: "${ex.naturalResponse}"`
+      );
+    });
+
+    return lines.join('\n');
+  }
 }
 
 export const aiTrainingService = new AITrainingService();
