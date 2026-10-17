@@ -334,6 +334,8 @@ export interface ToolCallExecution {
   status: 'pending' | 'success' | 'failed';
   result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | UserMemoryResult | WeatherRadarResult | HotelBookingResult | CurrencyConverterResult | SmartChecklistResult | TrainCoachPositionResult | SmartConciergeResult | any;
   executedAt: string;
+  confidence?: number;
+  reasoningDurationMs?: number;
 }
 
 export type CognitiveStepType = 'intent_classification' | 'entity_extraction' | 'memory_retrieval' | 'few_shot_matching' | 'tool_selection' | 'safety_evaluation' | 'response_synthesis';

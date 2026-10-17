@@ -400,7 +400,9 @@ export class VoiceAgentOrchestrator {
         args,
         status: 'success',
         result,
-        executedAt: new Date().toLocaleTimeString()
+        executedAt: new Date().toLocaleTimeString(),
+        confidence: 0.99,
+        reasoningDurationMs: duration
       };
 
       this.notifyToolExecuted(execution);

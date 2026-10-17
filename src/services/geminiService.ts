@@ -306,7 +306,9 @@ ${fewShotContext ? `${fewShotContext}\n\n` : ''}Keep your spoken responses execu
         args,
         status: 'success',
         result: toolResult,
-        executedAt: new Date().toLocaleTimeString()
+        executedAt: new Date().toLocaleTimeString(),
+        confidence: 0.98,
+        reasoningDurationMs: toolDuration
       };
       onToolExecute(execution);
 
