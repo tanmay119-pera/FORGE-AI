@@ -1,7 +1,9 @@
 import { MCP_TOOLS, executeMCPTool } from './mcpTools';
 import { ToolCallExecution, UserProfile } from '../types';
+import { aiTrainingService } from './aiTrainingService';
 
 export const DEFAULT_GEMINI_KEY = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEY) || '';
+
 const GEMINI_MODEL = 'gemini-2.0-flash';
 
 // Convert MCP Tool Definitions into Gemini Tool Declarations format
@@ -84,6 +86,8 @@ export class GeminiService {
     const timeOfDay = currentHour < 12 ? 'Morning' : currentHour < 17 ? 'Afternoon' : currentHour < 21 ? 'Evening' : 'Night';
     const formattedDate = currentDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
     const formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const fewShotContext = aiTrainingService.buildFewShotPromptContext(prompt);
 
     const systemPrompt = `You are Forge P1, an executive autonomous voice and action co-pilot built by Tanmay (Adesh Srivastava).
 When asked who you are, who created you, who made you, or what you are, ALWAYS state that you are Forge P1, built by Tanmay (Adesh Srivastava). Never claim to be made by Gemini, Google, or Agora.
@@ -178,7 +182,8 @@ CRITICAL WEATHER, TRAVEL & LOGISTICS COORDINATION RULES:
    - When asked "Give me my daily briefing", "What should I do today?", "Morning briefing", "Executive overview", or "Concierge check-in":
      Call smart_concierge immediately!
 
-Keep your spoken responses executive, concise (1-2 sentences max), crisp, professional, and confident.`;
+${fewShotContext ? `${fewShotContext}\n\n` : ''}Keep your spoken responses executive, concise (1-2 sentences max), crisp, professional, and confident.`;
+
 
 
 
