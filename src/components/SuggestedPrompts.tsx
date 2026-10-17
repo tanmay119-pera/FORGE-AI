@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeMode } from '../types';
-import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User, CloudRain, Building2, DollarSign, CheckSquare, Compass, Sun, Moon } from 'lucide-react';
+import { Sparkles, Car, Train, Calendar, ShoppingBag, Plane, User, CloudRain, Building2, DollarSign, CheckSquare, Compass, Sun, Moon, Brain } from 'lucide-react';
 
 interface SuggestedPromptsProps {
   onSelectPrompt: (prompt: string) => void;
@@ -11,6 +11,16 @@ export const SuggestedPrompts: React.FC<SuggestedPromptsProps> = ({ onSelectProm
   const isPureBlack = theme === 'dark';
 
   const prompts = [
+    {
+      title: 'AI Diagnostic',
+      text: 'Run AI model diagnostic and cognitive telemetry benchmark',
+      icon: Brain
+    },
+    {
+      title: 'Cognitive Trace',
+      text: 'Explain reasoning trace and few-shot alignment accuracy',
+      icon: Brain
+    },
     {
       title: 'Concierge Briefing',
       text: 'Give me my executive concierge briefing for today',
