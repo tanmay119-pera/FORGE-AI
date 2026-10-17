@@ -309,5 +309,42 @@ export interface ToolCallExecution {
   executedAt: string;
 }
 
+export type CognitiveStepType = 'intent_classification' | 'entity_extraction' | 'memory_retrieval' | 'few_shot_matching' | 'tool_selection' | 'safety_evaluation' | 'response_synthesis';
 
+export interface CognitiveStep {
+  step: CognitiveStepType;
+  label: string;
+  detail: string;
+  durationMs: number;
+  confidence: number;
+  tokensUsed?: number;
+}
 
+export interface ReasoningTrace {
+  traceId: string;
+  query: string;
+  timestamp: string;
+  selectedModel: 'p1' | 'p2';
+  steps: CognitiveStep[];
+  totalLatencyMs: number;
+  primaryIntent: string;
+  overallConfidence: number;
+}
+
+export interface PromptTuningPreset {
+  temperature: number;
+  topP: number;
+  topK: number;
+  reasoningDepth: 'rapid' | 'balanced' | 'deep_chain';
+  fewShotDensity: 'minimal' | 'balanced' | 'exhaustive';
+  autoCorrectionLevel: 'strict' | 'adaptive';
+}
+
+export interface ModelEvaluationMetrics {
+  totalInferences: number;
+  averageLatencyMs: number;
+  toolCallAccuracyPercent: number;
+  intentRecognitionRate: number;
+  fewShotCacheHitRate: number;
+  lastTunedAt: string;
+}
