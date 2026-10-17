@@ -375,12 +375,15 @@ export interface ReasoningTrace {
 }
 
 export interface PromptTuningPreset {
+  id?: string;
+  name?: string;
+  description?: string;
   temperature: number;
   topP: number;
   topK: number;
   reasoningDepth: 'rapid' | 'balanced' | 'deep_chain';
-  fewShotDensity: 'minimal' | 'balanced' | 'exhaustive';
-  autoCorrectionLevel: 'strict' | 'adaptive';
+  fewShotDensity?: 'minimal' | 'balanced' | 'exhaustive';
+  autoCorrectionLevel?: 'strict' | 'adaptive';
 }
 
 export interface ModelEvaluationMetrics {
