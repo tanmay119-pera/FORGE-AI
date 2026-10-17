@@ -27,6 +27,43 @@ export class VoiceAgentOrchestrator {
     pickup?: string;
     destination?: string;
   } | null = null;
+  private entityMemory: {
+    lastCity?: string;
+    lastDestination?: string;
+    lastOrigin?: string;
+    lastTrainQuery?: string;
+    lastFlightQuery?: string;
+    lastToolName?: string;
+  } = {};
+
+  public getEntityMemory() {
+    return { ...this.entityMemory };
+  }
+
+  public clearEntityMemory() {
+    this.entityMemory = {};
+  }
+
+  private notifyToolExecuted(execution: ToolCallExecution) {
+    this.updateEntityMemoryFromExecution(execution);
+    this.callbacks?.onToolExecuted(execution);
+  }
+
+  private updateEntityMemoryFromExecution(execution: ToolCallExecution) {
+    this.entityMemory.lastToolName = execution.toolName;
+    const args = execution.args || {};
+    const res = execution.result || {};
+    if (args.destination) this.entityMemory.lastDestination = args.destination;
+    if (res.destination) this.entityMemory.lastDestination = res.destination;
+    if (args.pickup) this.entityMemory.lastOrigin = args.pickup;
+    if (res.pickup) this.entityMemory.lastOrigin = res.pickup;
+    if (args.city) this.entityMemory.lastCity = args.city;
+    if (res.city) this.entityMemory.lastCity = res.city;
+    if (args.train_query) this.entityMemory.lastTrainQuery = args.train_query;
+    if (res.trainName) this.entityMemory.lastTrainQuery = res.trainName;
+    if (args.flight_number) this.entityMemory.lastFlightQuery = args.flight_number;
+    if (res.flightNumber) this.entityMemory.lastFlightQuery = res.flightNumber;
+  }
 
   public setUserProfile(profile: any) {
     this.userProfile = profile;
@@ -145,7 +182,7 @@ export class VoiceAgentOrchestrator {
       const reply = await geminiService.processQuery(
         effectivePrompt,
         (execution) => {
-          this.callbacks?.onToolExecuted(execution);
+          this.notifyToolExecuted(execution);
         },
         (dir, method, payload, dur) => {
           this.logMCP(dir, method, payload, dur);
@@ -343,7 +380,7 @@ export class VoiceAgentOrchestrator {
         executedAt: new Date().toLocaleTimeString()
       };
 
-      this.callbacks?.onToolExecuted(execution);
+      this.notifyToolExecuted(execution);
 
       let speech = '';
       if (toolName === 'user_memory') {
@@ -391,7 +428,7 @@ export class VoiceAgentOrchestrator {
     const trainResult = await executeMCPTool('transit_tracker', { train_query: 'Vande Bharat Express' });
     this.logMCP('server_to_client', 'tools/call_result', { name: 'transit_tracker', content: [{ type: 'text', text: JSON.stringify(trainResult) }] });
 
-    this.callbacks?.onToolExecuted({
+    this.notifyToolExecuted({
       id: 'exec-train-' + Date.now(),
       toolName: 'transit_tracker',
       args: { train_query: 'Vande Bharat Express' },
@@ -405,7 +442,7 @@ export class VoiceAgentOrchestrator {
     const calResult = await executeMCPTool('calendar_sync', { title: 'Boarding Vande Bharat Express', time: '17:45', location: 'Platform 4' });
     this.logMCP('server_to_client', 'tools/call_result', { name: 'calendar_sync', content: [{ type: 'text', text: JSON.stringify(calResult) }] });
 
-    this.callbacks?.onToolExecuted({
+    this.notifyToolExecuted({
       id: 'exec-cal-' + Date.now(),
       toolName: 'calendar_sync',
       args: { title: 'Boarding Vande Bharat Express', time: '17:45' },
@@ -419,7 +456,7 @@ export class VoiceAgentOrchestrator {
     const cabResult = await executeMCPTool('cab_dispatch', { destination: 'New Delhi Central Station Platform 4 Gate', vehicle_type: 'Premier' });
     this.logMCP('server_to_client', 'tools/call_result', { name: 'cab_dispatch', content: [{ type: 'text', text: JSON.stringify(cabResult) }] });
 
-    this.callbacks?.onToolExecuted({
+    this.notifyToolExecuted({
       id: 'exec-cab-' + Date.now(),
       toolName: 'cab_dispatch',
       args: { destination: 'New Delhi Central Station Platform 4 Gate' },
