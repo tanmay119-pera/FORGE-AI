@@ -350,6 +350,71 @@ export class AITrainingService {
 
     return lines.join('\n');
   }
+
+  /**
+   * Phonetic dictionary mapping common speech-to-text misrecognitions,
+   * local colloquialisms, and brand contractions to normalized tokens.
+   */
+  public static readonly PHONETIC_MAP: Record<string, string> = {
+    // Cabs & Rides
+    'uba': 'uber',
+    'oober': 'uber',
+    'ubr': 'uber',
+    'ola cab': 'ola',
+    'radiocab': 'cab',
+
+    // Quick Commerce & Delivery
+    'blink it': 'blinkit',
+    'blinkin': 'blinkit',
+    'blinked': 'blinkit',
+    'insta mart': 'instamart',
+    'swigy': 'swiggy',
+    'swiggi': 'swiggy',
+    'zomatoe': 'zomato',
+    'zomatoo': 'zomato',
+
+    // Railways & Transit
+    'vande barat': 'Vande Bharat',
+    'vande bharath': 'Vande Bharat',
+    'vande bhatat': 'Vande Bharat',
+    'rajdhani exp': 'Rajdhani Express',
+    'shatabdi exp': 'Shatabdi Express',
+    'durgiana exp': 'Durgiana Express',
+    'tejas exp': 'Tejas Express',
+    'blue dart': 'Blue Dart',
+    'bluedart': 'Blue Dart',
+    'd t d c': 'DTDC',
+
+    // Smart Home & IoT
+    'thermo stat': 'thermostat',
+    'air condition': 'AC',
+    'air conditioner': 'AC'
+  };
+
+  /**
+   * Cleans and normalizes noisy speech-to-text query input using phonetic
+   * fuzzy dictionary mappings prior to model inference or tool dispatch.
+   */
+  public normalizePhoneticQuery(query: string): { normalized: string; correctionsApplied: string[] } {
+    if (!query || typeof query !== 'string') {
+      return { normalized: '', correctionsApplied: [] };
+    }
+
+    let normalized = query.trim();
+    const correctionsApplied: string[] = [];
+
+    for (const [noisyPattern, cleanReplacement] of Object.entries(AITrainingService.PHONETIC_MAP)) {
+      // Word boundary regex for whole phrase or token matching
+      const regex = new RegExp(`\\b${noisyPattern}\\b`, 'gi');
+      if (regex.test(normalized)) {
+        correctionsApplied.push(`"${noisyPattern}" → "${cleanReplacement}"`);
+        normalized = normalized.replace(regex, cleanReplacement);
+      }
+    }
+
+    return { normalized, correctionsApplied };
+  }
 }
 
 export const aiTrainingService = new AITrainingService();
+
