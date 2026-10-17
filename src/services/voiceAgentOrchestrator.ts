@@ -3,6 +3,8 @@ import { executeMCPTool, MCP_TOOLS } from './mcpTools';
 import { geminiService } from './geminiService';
 import { elevenLabsService } from './elevenLabsService';
 import { audioCueService } from './audioCueService';
+import { aiTrainingService } from './aiTrainingService';
+
 
 
 export interface OrchestratorCallbacks {
@@ -122,6 +124,18 @@ export class VoiceAgentOrchestrator {
   public async handleUserInput(promptText: string) {
     this.callbacks?.onVoiceStateChange('thinking');
 
+    // 0. Apply phonetic voice recognition normalization
+    const { normalized, correctionsApplied } = aiTrainingService.normalizePhoneticQuery(promptText);
+    const effectivePrompt = normalized || promptText;
+
+    if (correctionsApplied.length > 0) {
+      this.logMCP('client_to_server', 'nlp/phonetic_normalization', {
+        raw: promptText,
+        normalized: effectivePrompt,
+        corrections: correctionsApplied
+      });
+    }
+
     // 1. Log MCP tools discovery
     this.logMCP('client_to_server', 'tools/list', {});
     this.logMCP('server_to_client', 'tools/list_response', { tools: MCP_TOOLS.map(t => t.name) });
@@ -129,7 +143,7 @@ export class VoiceAgentOrchestrator {
     try {
       // 2. Process query via live Gemini 3.6 Flash with Function Calling!
       const reply = await geminiService.processQuery(
-        promptText,
+        effectivePrompt,
         (execution) => {
           this.callbacks?.onToolExecuted(execution);
         },
@@ -143,7 +157,7 @@ export class VoiceAgentOrchestrator {
       console.warn('Gemini live call error, using deterministic fail-safe:', err);
 
       // Fallback deterministic tool planner
-      await this.fallbackPlanner(promptText);
+      await this.fallbackPlanner(effectivePrompt);
     }
   }
 
