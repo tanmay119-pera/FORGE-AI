@@ -414,7 +414,63 @@ export class AITrainingService {
 
     return { normalized, correctionsApplied };
   }
+
+  /**
+   * Internal telemetry alignment feedback records for RLHF user reinforcement.
+   */
+  private feedbackRecords: Array<{
+    id: string;
+    query: string;
+    response: string;
+    toolUsed?: string;
+    feedback: 'positive' | 'negative';
+    timestamp: string;
+  }> = [];
+
+  /**
+   * Records user reinforcement learning alignment feedback (thumbs up / thumbs down)
+   * into persistent browser storage for continuous model alignment tracking.
+   */
+  public recordFeedback(record: {
+    query: string;
+    response: string;
+    toolUsed?: string;
+    feedback: 'positive' | 'negative';
+  }) {
+    const feedbackItem = {
+      id: `fb-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      ...record
+    };
+    this.feedbackRecords.push(feedbackItem);
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = JSON.parse(localStorage.getItem('forge_alignment_feedback') || '[]');
+        stored.push(feedbackItem);
+        localStorage.setItem('forge_alignment_feedback', JSON.stringify(stored.slice(-50)));
+      } catch (e) {}
+    }
+    return feedbackItem;
+  }
+
+  /**
+   * Computes satisfaction and feedback alignment metrics across stored ratings.
+   */
+  public getFeedbackMetrics(): { positive: number; negative: number; satisfactionRate: number } {
+    let records = this.feedbackRecords;
+    if (typeof window !== 'undefined') {
+      try {
+        records = JSON.parse(localStorage.getItem('forge_alignment_feedback') || '[]');
+      } catch (e) {}
+    }
+    const positive = records.filter(r => r.feedback === 'positive').length;
+    const negative = records.filter(r => r.feedback === 'negative').length;
+    const total = positive + negative;
+    const satisfactionRate = total > 0 ? Math.round((positive / total) * 100) : 100;
+    return { positive, negative, satisfactionRate };
+  }
 }
 
 export const aiTrainingService = new AITrainingService();
+
 
