@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ToolCallExecution, ThemeMode, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, CabRideOption, ForgeBasicsResult, UserMemoryResult, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult } from '../types';
-import { Car, Train, Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, ShieldCheck, ExternalLink, Navigation, Users, ArrowRight, Plane, Sparkles, User, CloudRain, Building2, DollarSign, CheckSquare, Compass, Sun, Moon } from 'lucide-react';
+import { ToolCallExecution, ThemeMode, CabBookingResult, TrainStatusResult, FlightStatusResult, CalendarEventResult, PriceLookupResult, CabRideOption, ForgeBasicsResult, UserMemoryResult, WeatherRadarResult, HotelBookingResult, CurrencyConverterResult, SmartChecklistResult, TrainCoachPositionResult, SmartConciergeResult, ModelDiagnosticResult } from '../types';
+import { Car, Train, Calendar, ShoppingBag, MapPin, CheckCircle2, Clock, ShieldCheck, ExternalLink, Navigation, Users, ArrowRight, Plane, Sparkles, User, CloudRain, Building2, DollarSign, CheckSquare, Compass, Sun, Moon, Brain, Zap } from 'lucide-react';
 
 import { Avatar } from './Avatar';
 
@@ -43,7 +43,7 @@ export const ActionDashboard: React.FC<ActionDashboardProps> = ({ executions, th
       }`}>
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="font-bold text-[11px] text-emerald-400">13 MCP Tools Online</span>
+          <span className="font-bold text-[11px] text-emerald-400">14 MCP Tools Online</span>
           <span className="text-neutral-500">•</span>
           <span className={`text-[10px] ${isPureBlack ? 'text-neutral-400' : 'text-neutral-500'}`}>
             Sub-25ms Execution Pipeline
@@ -87,6 +87,8 @@ export const ActionDashboard: React.FC<ActionDashboardProps> = ({ executions, th
             return <ChecklistDashboardCard key={exec.id} data={exec.result as SmartChecklistResult} theme={theme} executedAt={exec.executedAt} />;
           } else if (exec.toolName === 'coach_position') {
             return <CoachDashboardCard key={exec.id} data={exec.result as TrainCoachPositionResult} theme={theme} executedAt={exec.executedAt} />;
+          } else if (exec.toolName === 'model_diagnostic') {
+            return <ModelDiagnosticDashboardCard key={exec.id} data={exec.result as ModelDiagnosticResult} theme={theme} executedAt={exec.executedAt} />;
           }
           return null;
         })}
@@ -827,6 +829,67 @@ const ConciergeDashboardCard: React.FC<{ data: SmartConciergeResult; theme: Them
             <span className="font-bold mr-1.5">{data.weatherHighlight.temp} • {data.weatherHighlight.condition}</span>
             <span className="text-neutral-400">{data.weatherHighlight.transitNote}</span>
           </div>
+        </div>
+      )}
+
+      <div className="text-[10px] text-neutral-500 text-right">Executed at {executedAt}</div>
+    </div>
+  );
+};
+
+// Cognitive Model Diagnostics & Benchmark Dashboard Card
+const ModelDiagnosticDashboardCard: React.FC<{ data: ModelDiagnosticResult; theme: ThemeMode; executedAt: string }> = ({ data, theme, executedAt }) => {
+  const isPureBlack = theme === 'dark';
+
+  return (
+    <div className={`p-4 rounded-2xl border space-y-3 transition-all ${
+      isPureBlack ? 'bg-[#0f0f0f] border-neutral-800 text-white' : 'bg-white border-neutral-200 text-neutral-900 shadow-sm'
+    }`}>
+      <div className="flex items-center justify-between pb-2 border-b border-neutral-800/40">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+            <Brain className="w-4 h-4" />
+          </div>
+          <div>
+            <h4 className="font-extrabold text-sm tracking-tight">AI Model Diagnostic & Telemetry</h4>
+            <p className={`text-[11px] ${isPureBlack ? 'text-neutral-400' : 'text-neutral-500'}`}>
+              {data.engine}
+            </p>
+          </div>
+        </div>
+        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          {data.accuracyRate}% Accuracy
+        </span>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+        <div className={`p-2 rounded-xl border text-center ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+          <div className="text-[9px] uppercase font-mono text-neutral-500">Latency</div>
+          <div className="font-extrabold text-xs text-cyan-400 mt-0.5">{data.averageInferenceLatencyMs} ms</div>
+        </div>
+        <div className={`p-2 rounded-xl border text-center ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+          <div className="text-[9px] uppercase font-mono text-neutral-500">Few-Shots</div>
+          <div className="font-extrabold text-xs text-purple-400 mt-0.5">{data.fewShotCount} Exemplars</div>
+        </div>
+        <div className={`p-2 rounded-xl border text-center ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+          <div className="text-[9px] uppercase font-mono text-neutral-500">Throughput</div>
+          <div className="font-extrabold text-xs text-emerald-400 mt-0.5">{data.tokenThroughputPerSec} t/s</div>
+        </div>
+        <div className={`p-2 rounded-xl border text-center ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+          <div className="text-[9px] uppercase font-mono text-neutral-500">Tools</div>
+          <div className="font-extrabold text-xs text-amber-400 mt-0.5">{data.toolRegistryCount} Online</div>
+        </div>
+      </div>
+
+      {data.recommendations && data.recommendations.length > 0 && (
+        <div className={`p-2.5 rounded-xl border text-[11px] space-y-1 ${isPureBlack ? 'bg-[#141414] border-neutral-800' : 'bg-neutral-50 border-neutral-200'}`}>
+          <div className="font-bold text-[10px] uppercase tracking-wider text-purple-400">Findings:</div>
+          {data.recommendations.map((rec, idx) => (
+            <div key={idx} className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+              <span className={isPureBlack ? 'text-neutral-300' : 'text-neutral-700'}>{rec}</span>
+            </div>
+          ))}
         </div>
       )}
 
