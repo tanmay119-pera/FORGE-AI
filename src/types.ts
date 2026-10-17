@@ -327,12 +327,26 @@ export interface IntentConfidenceScore {
   alternativeIntents: Array<{ intent: string; confidence: number }>;
 }
 
+export interface ModelDiagnosticResult {
+  engine: string;
+  activeModel: 'p1' | 'p2';
+  accuracyRate: number;
+  fewShotCount: number;
+  averageInferenceLatencyMs: number;
+  phoneticNormalizerStatus: 'active' | 'inactive';
+  memoryRetentionIndex: number;
+  tokenThroughputPerSec: number;
+  toolRegistryCount: number;
+  lastEvaluationTimestamp: string;
+  recommendations: string[];
+}
+
 export interface ToolCallExecution {
   id: string;
   toolName: string;
   args: any;
   status: 'pending' | 'success' | 'failed';
-  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | UserMemoryResult | WeatherRadarResult | HotelBookingResult | CurrencyConverterResult | SmartChecklistResult | TrainCoachPositionResult | SmartConciergeResult | any;
+  result?: CabBookingResult | TrainStatusResult | FlightStatusResult | CalendarEventResult | PriceLookupResult | ForgeBasicsResult | UserMemoryResult | WeatherRadarResult | HotelBookingResult | CurrencyConverterResult | SmartChecklistResult | TrainCoachPositionResult | SmartConciergeResult | ModelDiagnosticResult | any;
   executedAt: string;
   confidence?: number;
   reasoningDurationMs?: number;
