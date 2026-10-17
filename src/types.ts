@@ -298,6 +298,33 @@ export interface ConversationMessage {
   model?: 'p1' | 'p2';
   execution?: ToolCallExecution;
   followUpSuggestions?: string[];
+  reasoningTrace?: ReasoningTrace;
+  userFeedback?: 'positive' | 'negative';
+}
+
+export interface FewShotExample {
+  id: string;
+  userPrompt: string;
+  expectedTool: string;
+  expectedArgs: Record<string, any>;
+  naturalResponse: string;
+  tags: string[];
+  difficulty: 'direct' | 'contextual' | 'ambiguous' | 'multi_turn';
+}
+
+export interface FewShotDataset {
+  version: string;
+  lastUpdated: string;
+  totalExamples: number;
+  examples: FewShotExample[];
+}
+
+export interface IntentConfidenceScore {
+  intent: string;
+  confidence: number;
+  matchedEntities: Record<string, any>;
+  isDisambiguationRequired: boolean;
+  alternativeIntents: Array<{ intent: string; confidence: number }>;
 }
 
 export interface ToolCallExecution {
