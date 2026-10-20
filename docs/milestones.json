@@ -29,7 +29,12 @@
       "date": "2026-10-19",
       "commits": 25,
       "summary": "UI keyboard shortcuts, ARIA live announcer, fuzzy filter, toast queue, and focus helpers"
+    },
+    {
+      "date": "2026-10-20",
+      "commits": 25,
+      "summary": "PII redaction, injection scanning, token masking, URL allowlists, and UI shields"
     }
   ],
-  "total": 150
+  "total": 175
 }
