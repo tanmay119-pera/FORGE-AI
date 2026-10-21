@@ -34,7 +34,12 @@
       "date": "2026-10-20",
       "commits": 25,
       "summary": "PII redaction, injection scanning, token masking, URL allowlists, and UI shields"
+    },
+    {
+      "date": "2026-10-21",
+      "commits": 25,
+      "summary": "Agent registry, handoff cycle guards, feedback aligner, priority scheduler, and snapshots"
     }
   ],
-  "total": 175
+  "total": 200
 }
