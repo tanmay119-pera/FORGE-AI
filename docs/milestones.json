@@ -39,7 +39,12 @@
       "date": "2026-10-21",
       "commits": 25,
       "summary": "Agent registry, handoff cycle guards, feedback aligner, priority scheduler, and snapshots"
+    },
+    {
+      "date": "2026-10-22",
+      "commits": 25,
+      "summary": "Offline simulation fixtures, voice state replay, SSE stream chunker, and micro-benchmarks"
     }
   ],
-  "total": 200
+  "total": 225
 }
