@@ -7,3 +7,8 @@ export * from "./ui/index.ts";
 export * from "./security/index.ts";
 export * from "./agents/index.ts";
 export * from "./sim/index.ts";
+export * from "./copilotDiagnostics.ts";
+export * from "./configPresets.ts";
+export * from "./formatters.ts";
+export * from "./eventNames.ts";
+export * from "./statusBadges.ts";
