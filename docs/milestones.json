@@ -44,7 +44,12 @@
       "date": "2026-10-22",
       "commits": 25,
       "summary": "Offline simulation fixtures, voice state replay, SSE stream chunker, and micro-benchmarks"
+    },
+    {
+      "date": "2026-10-23",
+      "commits": 25,
+      "summary": "Completed FORGE-AI v1.1.0 utilities, UI diagnostics, docs, and E2E test verification"
     }
   ],
-  "total": 225
+  "total": 250
 }
